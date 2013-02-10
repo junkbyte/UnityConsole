@@ -81,7 +81,7 @@ public class JBConsole : MonoBehaviour
 
     public void AddCh(ConsoleLevel level, string channel, params string[] messages)
     {
-        logs.Add(new ConsoleLog(level, channel, string.Join(" ", messages)));
+        AddCh(level, channel, string.Join(" ", messages));
     }
 
     public void AddCh(ConsoleLevel level, string channel, string message)
