@@ -10,18 +10,16 @@ public class ConsoleTest : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        console = GetComponent<JBConsole>();
-
-        console.Add(ConsoleLevel.Info, "Test Info");
-        console.Add(ConsoleLevel.Debug, "Test", "test Debug");
-        console.Add(ConsoleLevel.Debug, "Test", "test Debug");
-        console.Add(ConsoleLevel.Warn, "Test", "Warn");
-        console.Add(ConsoleLevel.Warn, "Test", "Warn");
-        console.Add(ConsoleLevel.Warn, "Test", "Warn");
-        console.Add(ConsoleLevel.Warn, "Test", "Warn");
-        console.Add(ConsoleLevel.Error, "Test", "Error");
-        console.AddCh("myChannel", "Test myChannel");
-        console.AddCh("myChannel 2", "Test myChannel 2");
+        JBConsole.Add(ConsoleLevel.Info, "Test Info");
+        JBConsole.Add(ConsoleLevel.Debug, "Test", "test Debug");
+        JBConsole.Add(ConsoleLevel.Debug, "Test", "test Debug");
+        JBConsole.Add(ConsoleLevel.Warn, "Test", "Warn");
+        JBConsole.Add(ConsoleLevel.Warn, "Test", "Warn");
+        JBConsole.Add(ConsoleLevel.Warn, "Test", "Warn");
+        JBConsole.Add(ConsoleLevel.Warn, "Test", "Warn");
+        JBConsole.Add(ConsoleLevel.Error, "Test", "Error");
+        JBConsole.AddCh("myChannel", "Test myChannel");
+        JBConsole.AddCh("myChannel 2", "Test myChannel 2");
 	}
 	
 	// Update is called once per frame
@@ -30,7 +28,7 @@ public class ConsoleTest : MonoBehaviour {
         time += Time.deltaTime;
         if (time < 3f)
         {
-            console.Add(ConsoleLevel.Info, "Test " + Random.value);
+            JBConsole.Add(ConsoleLevel.Info, "Test " + Random.value);
         }
 	}
 }

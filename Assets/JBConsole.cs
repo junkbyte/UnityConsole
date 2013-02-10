@@ -10,8 +10,23 @@ public class JBConsole : MonoBehaviour
     public const string defaultChannelName = " - ";
     public const ConsoleLevel defaultConsoleLevel = ConsoleLevel.Debug;
 	
+	private static JBConsole _instance;
+	
+	public static JBConsole instance
+	{
+		get
+		{
+			if(_instance == null)
+			{
+				GameObject go = new GameObject("JBConsole");
+				_instance = go.AddComponent<JBConsole>();
+			}
+			return _instance;
+		}
+	}
+	
 	public int maxLogs = 500;
-    public bool visible = true;
+    public bool visible = false;
     public int menuItemWidth = 100;
 	public KeyCode toggleKey = KeyCode.BackQuote;
 
@@ -39,6 +54,7 @@ public class JBConsole : MonoBehaviour
 
 	void Awake ()
 	{
+		if(_instance == null) _instance = this;
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
         levels = Enum.GetNames(typeof(ConsoleLevel));
         channels = new string[] { allChannelsName, defaultChannelName };
@@ -55,34 +71,34 @@ public class JBConsole : MonoBehaviour
 		}
 	}
 
-    public void Add(params string[] messages)
+    public static void Add(params string[] messages)
     {
-        AddCh(defaultConsoleLevel, defaultChannelName, string.Join(" ", messages));
+        instance.AddCh(defaultConsoleLevel, defaultChannelName, string.Join(" ", messages));
     }
 
-    public void Add(ConsoleLevel level, params string[] messages)
+    public static void Add(ConsoleLevel level, params string[] messages)
     {
-        AddCh(level, defaultChannelName, string.Join(" " ,messages));
+        instance.AddCh(level, defaultChannelName, string.Join(" " ,messages));
     }
 
-    public void Add(ConsoleLevel level, string message)
+    public static void Add(ConsoleLevel level, string message)
     {
-        AddCh(level, defaultChannelName, message);
+        instance.AddCh(level, defaultChannelName, message);
     }
 
-    public void AddCh(string channel, params string[] messages)
+    public static void AddCh(string channel, params string[] messages)
     {
-        AddCh(defaultConsoleLevel, channel, string.Join(" ", messages));
+        instance.AddCh(defaultConsoleLevel, channel, string.Join(" ", messages));
     }
 
-    public void AddCh(string channel, string message)
+    public static void AddCh(string channel, string message)
     {
-        AddCh(defaultConsoleLevel, channel, message);
+        instance.AddCh(defaultConsoleLevel, channel, message);
     }
 
-    public void AddCh(ConsoleLevel level, string channel, params string[] messages)
+    public static void AddCh(ConsoleLevel level, string channel, params string[] messages)
     {
-        AddCh(level, channel, string.Join(" ", messages));
+        instance.AddCh(level, channel, string.Join(" ", messages));
     }
 
     public void AddCh(ConsoleLevel level, string channel, string message)
@@ -167,7 +183,7 @@ public class JBConsole : MonoBehaviour
                 subMenuHandler = OnCustomMenuClicked;
                 break;
             case (int)ConsoleMenu.Hide:
-                visible = false;
+                visible = !visible;
                 return;
         }
         currentTopMenuIndex = index;
@@ -265,11 +281,15 @@ public class JBConsole : MonoBehaviour
 	    Matrix4x4 scaledMatrix = Matrix4x4.Scale(Vector3.one * screenScale);
 	    GUI.matrix = scaledMatrix;
          */
-
+		DrawGUI();
+	}
+	
+	public void DrawGUI()
+	{
         float width = (float) Screen.width;
         GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
 
-        GUILayout.BeginVertical("box", GUILayout.Height(Screen.height));
+        GUILayout.BeginVertical("box", GUILayout.MaxHeight(Screen.height));
 
         GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
