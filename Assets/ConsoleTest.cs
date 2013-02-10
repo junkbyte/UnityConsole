@@ -14,6 +14,10 @@ public class ConsoleTest : MonoBehaviour {
 
         console.Add(ConsoleLevel.Info, "Test Info");
         console.Add(ConsoleLevel.Debug, "Test", "test Debug");
+        console.Add(ConsoleLevel.Debug, "Test", "test Debug");
+        console.Add(ConsoleLevel.Warn, "Test", "Warn");
+        console.Add(ConsoleLevel.Warn, "Test", "Warn");
+        console.Add(ConsoleLevel.Warn, "Test", "Warn");
         console.Add(ConsoleLevel.Warn, "Test", "Warn");
         console.Add(ConsoleLevel.Error, "Test", "Error");
         console.AddCh("myChannel", "Test myChannel");

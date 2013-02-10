@@ -1,14 +1,19 @@
-using UnityEngine;using System.Collections.Generic;using System;
+using UnityEngine;
+using System.Collections.Generic;
+using System;
 
 public delegate void MenuHandler();
-public class JBConsole : MonoBehaviour
+
+public class JBConsole : MonoBehaviour
 {
     public const string allChannelsName = " * ";
     public const string defaultChannelName = " - ";
     public const ConsoleLevel defaultConsoleLevel = ConsoleLevel.Debug;
-
+	
+	public int maxLogs = 500;
     public bool visible = true;
     public int menuItemWidth = 100;
+	public KeyCode toggleKey = KeyCode.BackQuote;
 
     string[] topMenu;
     string[] levels;
@@ -29,24 +34,82 @@ public delegate void MenuHandler();
     List<ConsoleLog> logs = new List<ConsoleLog>();
     List<ConsoleLog> cachedLogs;
 
-    Vector2 scrollPosition;	void Awake ()	{
+    Vector2 scrollPosition;
+
+	void Awake ()
+	{
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
         levels = Enum.GetNames(typeof(ConsoleLevel));
         channels = new string[] { allChannelsName, defaultChannelName };
 
         customMenus = new string[0];
-        customMenuHandlers = new Dictionary<int, MenuHandler>();	}		void Update ()    {	}
+        customMenuHandlers = new Dictionary<int, MenuHandler>();
+	}
+	
+	void Update ()
+    {
+		if(Input.GetKeyDown(toggleKey))
+		{
+			visible = !visible;
+		}
+	}
 
     public void Add(params string[] messages)
     {
         AddCh(defaultConsoleLevel, defaultChannelName, string.Join(" ", messages));
-    }    public void Add(ConsoleLevel level, params string[] messages)    {        AddCh(level, defaultChannelName, string.Join(" " ,messages));    }    public void Add(ConsoleLevel level, string message)    {        AddCh(level, defaultChannelName, message);    }    public void AddCh(string channel, params string[] messages)    {        AddCh(defaultConsoleLevel, channel, string.Join(" ", messages));    }    public void AddCh(string channel, string message)    {        AddCh(defaultConsoleLevel, channel, message);    }    public void AddCh(ConsoleLevel level, string channel, params string[] messages)    {        logs.Add(new ConsoleLog(level, channel, string.Join(" ", messages)));    }    public void AddCh(ConsoleLevel level, string channel, string message)    {        //Debug.Log(level + " " + message);        logs.Add(new ConsoleLog(level, channel, message));        int index = Array.IndexOf(channels, channel);        if (index < 0)        {
+    }
+
+    public void Add(ConsoleLevel level, params string[] messages)
+    {
+        AddCh(level, defaultChannelName, string.Join(" " ,messages));
+    }
+
+    public void Add(ConsoleLevel level, string message)
+    {
+        AddCh(level, defaultChannelName, message);
+    }
+
+    public void AddCh(string channel, params string[] messages)
+    {
+        AddCh(defaultConsoleLevel, channel, string.Join(" ", messages));
+    }
+
+    public void AddCh(string channel, string message)
+    {
+        AddCh(defaultConsoleLevel, channel, message);
+    }
+
+    public void AddCh(ConsoleLevel level, string channel, params string[] messages)
+    {
+        logs.Add(new ConsoleLog(level, channel, string.Join(" ", messages)));
+    }
+
+    public void AddCh(ConsoleLevel level, string channel, string message)
+    {
+        //Debug.Log(level + " " + message);
+		int count = logs.Count;
+		if(count > 0 && logs[count - 1].content.text == message)
+		{
+			logs[count - 1].repeats++;
+			cachedLogs = null;
+			return;
+		}
+        logs.Add(new ConsoleLog(level, channel, message));
+        int index = Array.IndexOf(channels, channel);
+        if (index < 0)
+        {
             AddToStringArray(ref channels, channel);
             if (currentTopMenuIndex == (int)ConsoleMenu.Channels)
             {
                 UpdateChannelsSubMenu();
-            }        }
-        cachedLogs = null;    }
+            }
+        }
+		if(count >= maxLogs)
+		{
+			logs.RemoveAt(0);
+		}
+        cachedLogs = null;
+    }
 
     public void AddMenu(string name, MenuHandler callback)
     {
@@ -76,25 +139,39 @@ public delegate void MenuHandler();
             Array.Copy(strings, result, strings.Length);
         }
         return result;
-    }    void OnMenuSelection(int index)    {        if (currentTopMenuIndex == index)        {            index = -1;
+    }
+
+    void OnMenuSelection(int index)
+    {
+        if (currentTopMenuIndex == index)
+        {
+            index = -1;
         }
         currentSubMenu = null;
-        switch (index)        {
+        switch (index)
+        {
             case (int)ConsoleMenu.Channels:
                 UpdateChannelsSubMenu();
-                subMenuHandler = OnChannelClicked;                break;
+                subMenuHandler = OnChannelClicked;
+                break;
             case (int)ConsoleMenu.Levels:
                 UpdateLevelsSubMenu();
-                subMenuHandler = OnLevelClicked;                break;
+                subMenuHandler = OnLevelClicked;
+                break;
             case (int)ConsoleMenu.Search:
-                searchTerm = "";                break;
+                searchTerm = "";
+                break;
             case (int)ConsoleMenu.Menu:
                 currentSubMenu = customMenus;
-                subMenuHandler = OnCustomMenuClicked;                break;
+                subMenuHandler = OnCustomMenuClicked;
+                break;
             case (int)ConsoleMenu.Hide:
                 visible = false;
-                return;        }        currentTopMenuIndex = index;
-        currentTopMenu = SelectedStateArrayIndex(topMenu, index, true);    }
+                return;
+        }
+        currentTopMenuIndex = index;
+        currentTopMenu = SelectedStateArrayIndex(topMenu, index, true);
+    }
 
     void OnChannelClicked(int index)
     {
@@ -163,10 +240,30 @@ public delegate void MenuHandler();
     void UpdateLevelsSubMenu()
     {
         currentSubMenu = SelectedStateArrayIndex(levels, (int)viewingLevel, true);
-    }		void OnGUI ()	{
-        if (!visible) return;		/*        float screenScale = Screen.width / 320f;	    Matrix4x4 scaledMatrix = Matrix4x4.Scale(Vector3.one * screenScale);	    GUI.matrix = scaledMatrix;         */        float width = (float) Screen.width;        GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);        GUILayout.BeginVertical("box", GUILayout.Height(Screen.height));        GUILayout.BeginHorizontal();		GUILayout.FlexibleSpace();
+    }
+	
+	void OnGUI ()
+	{
+        if (!visible) return;
+		/*
+        float screenScale = Screen.width / 320f;
+	    Matrix4x4 scaledMatrix = Matrix4x4.Scale(Vector3.one * screenScale);
+	    GUI.matrix = scaledMatrix;
+         */
+
+        float width = (float) Screen.width;
+        GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
+
+        GUILayout.BeginVertical("box", GUILayout.Height(Screen.height));
+
+        GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
         int selection = GUILayout.Toolbar(-1, currentTopMenu, GUILayout.MinWidth(280), GUILayout.MaxWidth(380));
-        if (selection >= 0)        {            OnMenuSelection(selection);        }		GUILayout.EndHorizontal();
+        if (selection >= 0)
+        {
+            OnMenuSelection(selection);
+        }
+		GUILayout.EndHorizontal();
 
         // show search text field.
         if (currentTopMenuIndex == (int)ConsoleMenu.Search)
@@ -176,22 +273,46 @@ public delegate void MenuHandler();
             searchTerm = searchTerm.ToLower();
             
             GUI.FocusControl("SearchTF");
-        }        if (currentSubMenu != null)        {            selection = GUILayout.SelectionGrid(-1, currentSubMenu, (int)width / menuItemWidth);
+        }
+
+        if (currentSubMenu != null)
+        {
+            selection = GUILayout.SelectionGrid(-1, currentSubMenu, (int)width / menuItemWidth);
             if (selection >= 0 && subMenuHandler != null)
             {
                 subMenuHandler(selection);
-            }        }
+            }
+        }
 
-        scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);        if (cachedLogs == null)        {            // TODO: if at bottom of page, trim down the log to last lines.            cachedLogs = logs;        }        int len = cachedLogs.Count;
-        ConsoleLog log;        for (int i = 0; i < len; i++)        {
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+
+        if (cachedLogs == null)
+        {
+            // TODO: if at bottom of page, trim down the log to last lines.
+            cachedLogs = logs;
+        }
+        int len = cachedLogs.Count;
+        ConsoleLog log;
+        for (int i = 0; i < len; i++)
+        {
             log = cachedLogs[i];
             // todo, do the filtering in cachedLogs refresh phase.
             if (log.level >= viewingLevel 
                 && (viewingChannels == null || Array.IndexOf(viewingChannels, log.channel) >= 0)
                 && (searchTerm == "" || log.content.text.ToLower().Contains(searchTerm)))
             {
-                GUILayout.Label(log.content, maxwidthscreen);
-            }        }        GUILayout.EndScrollView();        GUILayout.EndVertical();	}
+                if(log.repeats > 0)
+				{
+					GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
+				}
+				else GUILayout.Label(log.content, maxwidthscreen);
+            }
+        }
+
+        GUILayout.EndScrollView();
+
+        GUILayout.EndVertical();
+	}
 
     string[] SelectedStateArrayIndex(string[] array, int index, bool copy)
     {
@@ -205,7 +326,8 @@ public delegate void MenuHandler();
         else result = array;
         result[index] = "["+ result[index]+"]";
         return result;
-    }}
+    }
+}
 
 
 public enum ConsoleLevel
@@ -233,6 +355,7 @@ class ConsoleLog
     public ConsoleLevel level;
     public string channel;
     public GUIContent content;
+	public int repeats;
     public float height;
 
     public ConsoleLog(ConsoleLevel level_, string channel_, string message)
