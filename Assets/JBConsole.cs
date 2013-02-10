@@ -33,6 +33,7 @@ public class JBConsole : MonoBehaviour
 
     List<ConsoleLog> logs = new List<ConsoleLog>();
     List<ConsoleLog> cachedLogs;
+	bool atBottom = true;
 
     Vector2 scrollPosition;
 
@@ -241,6 +242,20 @@ public class JBConsole : MonoBehaviour
     {
         currentSubMenu = SelectedStateArrayIndex(levels, (int)viewingLevel, true);
     }
+
+    string[] SelectedStateArrayIndex(string[] array, int index, bool copy)
+    {
+        if (index < 0) return array;
+        string[] result;
+        if (copy)
+        {
+            result = new string[array.Length];
+            Array.Copy(array, result, array.Length);
+        }
+        else result = array;
+        result[index] = "["+ result[index]+"]";
+        return result;
+    }
 	
 	void OnGUI ()
 	{
@@ -265,16 +280,6 @@ public class JBConsole : MonoBehaviour
         }
 		GUILayout.EndHorizontal();
 
-        // show search text field.
-        if (currentTopMenuIndex == (int)ConsoleMenu.Search)
-        {
-            GUI.SetNextControlName("SearchTF");
-            searchTerm = GUILayout.TextField(searchTerm);
-            searchTerm = searchTerm.ToLower();
-            
-            GUI.FocusControl("SearchTF");
-        }
-
         if (currentSubMenu != null)
         {
             selection = GUILayout.SelectionGrid(-1, currentSubMenu, (int)width / menuItemWidth);
@@ -284,49 +289,79 @@ public class JBConsole : MonoBehaviour
             }
         }
 
-        scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
-
-        if (cachedLogs == null)
+        if (currentTopMenuIndex == (int)ConsoleMenu.Search)
         {
-            // TODO: if at bottom of page, trim down the log to last lines.
-            cachedLogs = logs;
+            GUI.SetNextControlName("SearchTF");
+            string newTerm = GUILayout.TextField(searchTerm);
+			if(newTerm != searchTerm)
+			{
+            	searchTerm = newTerm.ToLower();
+				cachedLogs = null;
+			}
+            
+            GUI.FocusControl("SearchTF");
         }
-        int len = cachedLogs.Count;
-        ConsoleLog log;
-        for (int i = 0; i < len; i++)
-        {
-            log = cachedLogs[i];
-            // todo, do the filtering in cachedLogs refresh phase.
-            if (log.level >= viewingLevel 
-                && (viewingChannels == null || Array.IndexOf(viewingChannels, log.channel) >= 0)
-                && (searchTerm == "" || log.content.text.ToLower().Contains(searchTerm)))
-            {
-                if(log.repeats > 0)
+		
+		
+		
+		bool hasCachedLog = cachedLogs != null;
+        
+		if(atBottom)
+		{
+			scrollPosition.y = float.MaxValue;
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+			
+			if (cachedLogs == null)
+	        {
+	            CacheBottomOfLogs();
+	        }
+	        int len = cachedLogs.Count;
+	        ConsoleLog log;
+	        for (int i = 0; i < len; i++)
+	        {
+	            log = cachedLogs[i];
+	            if(log.repeats > 0)
 				{
 					GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
 				}
 				else GUILayout.Label(log.content, maxwidthscreen);
-            }
-        }
-
-        GUILayout.EndScrollView();
+	        }
+	
+	        GUILayout.EndScrollView();
+		}
+        else
+		{
+			//todo...
+		}
 
         GUILayout.EndVertical();
 	}
-
-    string[] SelectedStateArrayIndex(string[] array, int index, bool copy)
-    {
-        if (index < 0) return array;
-        string[] result;
-        if (copy)
-        {
-            result = new string[array.Length];
-            Array.Copy(array, result, array.Length);
-        }
-        else result = array;
-        result[index] = "["+ result[index]+"]";
-        return result;
-    }
+	
+	void CacheBottomOfLogs()
+	{
+		//TODO, avoid needing to create new list.
+		cachedLogs = new List<ConsoleLog>();
+		ConsoleLog log;
+		float height = (float) Screen.height;
+		float width = (float) Screen.width;
+		for(int i = logs.Count - 1; i >= 0 && height > 0; i--)
+		{
+			log = logs[i];
+			if (ShouldShow(log))
+			{
+				cachedLogs.Add(log);
+				height -= log.GetHeightForWidth(width);
+			}
+		}
+		cachedLogs.Reverse();
+	}
+	
+	bool ShouldShow(ConsoleLog log)
+	{
+		return (log.level >= viewingLevel 
+			&& (viewingChannels == null || Array.IndexOf(viewingChannels, log.channel) >= 0)
+	        && (searchTerm == "" || log.content.text.ToLower().Contains(searchTerm)));
+	}
 }
 
 
