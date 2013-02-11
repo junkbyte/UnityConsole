@@ -14,6 +14,11 @@ public class JBConsoleWindow : EditorWindow {
     	EditorWindow.GetWindow(typeof(JBConsoleWindow), false, "JB Console");
     }
 	
+    void Update ()
+	{
+		Repaint();
+    }
+	
 	void OnGUI()
 	{
 		if(!Application.isPlaying)
