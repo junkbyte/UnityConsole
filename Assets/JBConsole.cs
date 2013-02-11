@@ -48,7 +48,9 @@ public class JBConsole : MonoBehaviour
 
     List<ConsoleLog> logs = new List<ConsoleLog>();
     List<ConsoleLog> cachedLogs;
-	bool atBottom = true;
+	bool autoScrolling = true;
+	
+	Rect autoscrolltogglerect = new Rect(0, 0, 100, 22);
 
     Vector2 scrollPosition;
 
@@ -166,7 +168,6 @@ public class JBConsole : MonoBehaviour
 
     string[] StringsWithoutString(string[] strings, string str)
     {
-        string[] result;
         int index = Array.IndexOf(strings, str);
         return StringsWithoutIndex(strings, index);
     }
@@ -311,15 +312,14 @@ public class JBConsole : MonoBehaviour
 	    Matrix4x4 scaledMatrix = Matrix4x4.Scale(Vector3.one * screenScale);
 	    GUI.matrix = scaledMatrix;
          */
-		DrawGUI();
+		DrawGUI(Screen.width, Screen.height);
 	}
 	
-	public void DrawGUI()
+	public void DrawGUI(float width, float height)
 	{
-        float width = (float) Screen.width;
         GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
 
-        GUILayout.BeginVertical("box", GUILayout.MaxHeight(Screen.height));
+        GUILayout.BeginVertical("box");
 
         GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
@@ -351,19 +351,29 @@ public class JBConsole : MonoBehaviour
             
             GUI.FocusControl("SearchTF");
         }
-		
-		
-		
-		bool hasCachedLog = cachedLogs != null;
-        
-		if(atBottom)
+		if(autoScrolling)
 		{
-			scrollPosition.y = float.MaxValue;
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+			//if(cachedLogs == null)
+			{
+				scrollPosition.y = float.MaxValue;
+			}
+			
+			Vector2 newPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+			
+			if(scrollPosition.y != float.MaxValue && scrollPosition.y != newPosition.y)
+			{
+				// User scrolled... TODO
+				scrollPosition.y = float.MaxValue;
+			}
+			else
+			{
+				scrollPosition = newPosition;
+			}
+			
 			
 			if (cachedLogs == null)
 	        {
-	            CacheBottomOfLogs();
+	            CacheBottomOfLogs(width, height);
 	        }
 	        int len = cachedLogs.Count;
 	        ConsoleLog log;
@@ -376,24 +386,50 @@ public class JBConsole : MonoBehaviour
 				}
 				else GUILayout.Label(log.content, maxwidthscreen);
 	        }
-	
-	        GUILayout.EndScrollView();
+			GUILayout.EndScrollView();
 		}
         else
 		{
-			//todo...
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+	        int len = logs.Count;
+			ConsoleLog log;
+			for (int i = 0; i < len; i++)
+			{
+				log = logs[i];
+				if (ShouldShow(log))
+				{
+					if(log.repeats > 0)
+					{
+						GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
+					}
+					else
+					{
+						GUILayout.Label(log.content, maxwidthscreen);
+					}
+				}
+			}
+			GUILayout.EndScrollView();
 		}
-
+		
+		autoscrolltogglerect.x = width - autoscrolltogglerect.width;
+		autoscrolltogglerect.y = height - autoscrolltogglerect.height;
+		if(GUI.Toggle(autoscrolltogglerect, autoScrolling, "Auto scroll") != autoScrolling)
+		{
+			autoScrolling = !autoScrolling;
+			if(!autoScrolling)
+			{
+				scrollPosition.y = float.MaxValue;
+			}
+		}
+		
         GUILayout.EndVertical();
 	}
 	
-	void CacheBottomOfLogs()
+	void CacheBottomOfLogs(float width, float height)
 	{
 		//TODO, avoid needing to create new list.
 		cachedLogs = new List<ConsoleLog>();
 		ConsoleLog log;
-		float height = (float) Screen.height;
-		float width = (float) Screen.width;
 		for(int i = logs.Count - 1; i >= 0 && height > 0; i--)
 		{
 			log = logs[i];

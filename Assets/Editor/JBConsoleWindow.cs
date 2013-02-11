@@ -39,7 +39,7 @@ public class JBConsoleWindow : EditorWindow {
 			}
 			else
 			{
-				console.DrawGUI();
+				console.DrawGUI(position.width, position.height);
 			}
 			
 		}
