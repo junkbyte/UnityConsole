@@ -70,6 +70,16 @@ public class JBConsole : MonoBehaviour
 			visible = !visible;
 		}
 	}
+	
+    public static void AddMenu(string name, MenuHandler callback)
+	{
+		instance.AddCustomMenu(name, callback);
+	}
+	
+    public static void RemoveMenu(string name)
+	{
+		instance.RemoveCustomMenu(name);
+	}
 
     public static void Add(params string[] messages)
     {
@@ -127,11 +137,25 @@ public class JBConsole : MonoBehaviour
 		}
         cachedLogs = null;
     }
-
-    public void AddMenu(string name, MenuHandler callback)
+	
+    public void AddCustomMenu(string name, MenuHandler callback)
     {
+		RemoveMenu(name);
         AddToStringArray(ref customMenus, name);
         customMenuHandlers[customMenus.Length - 1] = callback;
+    }
+
+    public void RemoveCustomMenu(string name)
+    {
+		for(int i = customMenus.Length - 1; i >= 0; i--)
+		{
+			if(customMenus[i] == name)
+			{
+				customMenus = StringsWithoutIndex(customMenus, i);
+				customMenuHandlers.Remove(i);
+				return;
+			}
+		}
     }
 
     void AddToStringArray(ref string[] strings, string str)
@@ -144,6 +168,12 @@ public class JBConsole : MonoBehaviour
     {
         string[] result;
         int index = Array.IndexOf(strings, str);
+        return StringsWithoutIndex(strings, index);
+    }
+
+    string[] StringsWithoutIndex(string[] strings, int index)
+    {
+        string[] result;
         if (index >= 0)
         {
             result = new string[strings.Length - 1];
