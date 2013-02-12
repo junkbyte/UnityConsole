@@ -321,22 +321,29 @@ public class JBConsole : MonoBehaviour
 
         GUILayout.BeginVertical("box");
 
-        GUILayout.BeginHorizontal();
-		GUILayout.FlexibleSpace();
+        //GUILayout.BeginHorizontal();
+		//GUILayout.FlexibleSpace();
         int selection = GUILayout.Toolbar(-1, currentTopMenu, GUILayout.MinWidth(280), GUILayout.MaxWidth(380));
         if (selection >= 0)
         {
             OnMenuSelection(selection);
         }
-		GUILayout.EndHorizontal();
+		//GUILayout.EndHorizontal();
 
         if (currentSubMenu != null)
         {
-            selection = GUILayout.SelectionGrid(-1, currentSubMenu, (int)width / menuItemWidth);
-            if (selection >= 0 && subMenuHandler != null)
-            {
-                subMenuHandler(selection);
-            }
+			if(currentSubMenu.Length == 0)
+			{
+				GUILayout.Label("No Custom Menus...");
+			}
+			else
+			{
+				selection = GUILayout.SelectionGrid(-1, currentSubMenu, (int)width / menuItemWidth);
+	            if (selection >= 0 && subMenuHandler != null)
+	            {
+	                subMenuHandler(selection);
+	            }
+			}
         }
 
         if (currentTopMenuIndex == (int)ConsoleMenu.Search)
@@ -376,15 +383,9 @@ public class JBConsole : MonoBehaviour
 	            CacheBottomOfLogs(width, height);
 	        }
 	        int len = cachedLogs.Count;
-	        ConsoleLog log;
 	        for (int i = 0; i < len; i++)
 	        {
-	            log = cachedLogs[i];
-	            if(log.repeats > 0)
-				{
-					GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
-				}
-				else GUILayout.Label(log.content, maxwidthscreen);
+				PrintLog(cachedLogs[i], maxwidthscreen);
 	        }
 			GUILayout.EndScrollView();
 		}
@@ -398,14 +399,7 @@ public class JBConsole : MonoBehaviour
 				log = logs[i];
 				if (ShouldShow(log))
 				{
-					if(log.repeats > 0)
-					{
-						GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
-					}
-					else
-					{
-						GUILayout.Label(log.content, maxwidthscreen);
-					}
+					PrintLog(log, maxwidthscreen);
 				}
 			}
 			GUILayout.EndScrollView();
@@ -423,6 +417,18 @@ public class JBConsole : MonoBehaviour
 		}
 		
         GUILayout.EndVertical();
+	}
+	
+	void PrintLog(ConsoleLog log, GUILayoutOption maxwidthscreen)
+	{
+		if(log.repeats > 0)
+		{
+			GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
+		}
+		else
+		{
+			GUILayout.Label(log.content, maxwidthscreen);
+		}
 	}
 	
 	void CacheBottomOfLogs(float width, float height)

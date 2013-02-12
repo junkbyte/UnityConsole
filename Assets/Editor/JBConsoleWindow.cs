@@ -2,31 +2,32 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
-public class JBConsoleWindow : EditorWindow {
-
+public class JBConsoleWindow : EditorWindow
+{
+	
+	JBConsole console;
+	
 	void Start () {
 	
 	}
 	
 	[MenuItem ("Window/JunkByte Console")]
     static void OpenJunkByteConsoleWindow()
-	{		
+	{
     	EditorWindow.GetWindow(typeof(JBConsoleWindow), false, "JB Console");
     }
 	
     void Update ()
 	{
+		if(JBConsole.instance != null)
+		{
+			console = JBConsole.instance;
+		}
 		Repaint();
     }
 	
 	void OnGUI()
 	{
-		if(!Application.isPlaying)
-		{
-			GUILayout.Label("JunkByte Console will run in play mode.");
-			return;
-		}
-		JBConsole console = JBConsole.instance;
 		if(console != null)
 		{
 			if(console.visible)
@@ -41,7 +42,6 @@ public class JBConsoleWindow : EditorWindow {
 			{
 				console.DrawGUI(position.width, position.height);
 			}
-			
 		}
 	}
 }
