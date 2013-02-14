@@ -6,9 +6,12 @@ public delegate void MenuHandler();
 
 public class JBConsole : MonoBehaviour
 {
-    public const string allChannelsName = " * ";
-    public const string defaultChannelName = " - ";
-    public const ConsoleLevel defaultConsoleLevel = ConsoleLevel.Debug;
+
+	public JBConsole(){
+		logger = JBLogger.instance;
+		logger.newChannelListener = notifyNewChannel;
+		logger.logCacheFilterDelegate = ShouldShow;
+	}
 	
 	private static JBConsole _instance;
 	
@@ -25,41 +28,42 @@ public class JBConsole : MonoBehaviour
 		}
 	}
 	
-	public int maxLogs = 500;
+	public static bool exists
+	{
+		get { return _instance != null; }
+	}
+	
+	private JBLogger logger;
+
     public bool visible = false;
     public int menuItemWidth = 100;
 	public KeyCode toggleKey = KeyCode.BackQuote;
 
     string[] topMenu;
-    string[] levels;
-    string[] channels;
-    string[] customMenus;
     Dictionary<int, MenuHandler> customMenuHandlers;
 
     ConsoleLevel viewingLevel = ConsoleLevel.Debug;
     string[] viewingChannels;
 
     int currentTopMenuIndex = -1;
+	string[] customMenus;
     string[] currentTopMenu;
     string[] currentSubMenu;
     SubMenuHandler subMenuHandler;
 
     string searchTerm = "";
 
-    List<ConsoleLog> logs = new List<ConsoleLog>();
-    List<ConsoleLog> cachedLogs;
 	bool autoScrolling = true;
 	
 	Rect autoscrolltogglerect = new Rect(0, 0, 100, 22);
 
     Vector2 scrollPosition;
-
+		
 	void Awake ()
 	{
 		if(_instance == null) _instance = this;
+		
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
-        levels = Enum.GetNames(typeof(ConsoleLevel));
-        channels = new string[] { allChannelsName, defaultChannelName };
 
         customMenus = new string[0];
         customMenuHandlers = new Dictionary<int, MenuHandler>();
@@ -83,62 +87,6 @@ public class JBConsole : MonoBehaviour
 		instance.RemoveCustomMenu(name);
 	}
 
-    public static void Add(params string[] messages)
-    {
-        instance.AddCh(defaultConsoleLevel, defaultChannelName, string.Join(" ", messages));
-    }
-
-    public static void Add(ConsoleLevel level, params string[] messages)
-    {
-        instance.AddCh(level, defaultChannelName, string.Join(" " ,messages));
-    }
-
-    public static void Add(ConsoleLevel level, string message)
-    {
-        instance.AddCh(level, defaultChannelName, message);
-    }
-
-    public static void AddCh(string channel, params string[] messages)
-    {
-        instance.AddCh(defaultConsoleLevel, channel, string.Join(" ", messages));
-    }
-
-    public static void AddCh(string channel, string message)
-    {
-        instance.AddCh(defaultConsoleLevel, channel, message);
-    }
-
-    public static void AddCh(ConsoleLevel level, string channel, params string[] messages)
-    {
-        instance.AddCh(level, channel, string.Join(" ", messages));
-    }
-
-    public void AddCh(ConsoleLevel level, string channel, string message)
-    {
-        //Debug.Log(level + " " + message);
-		int count = logs.Count;
-		if(count > 0 && logs[count - 1].content.text == message)
-		{
-			logs[count - 1].repeats++;
-			cachedLogs = null;
-			return;
-		}
-        logs.Add(new ConsoleLog(level, channel, message));
-        int index = Array.IndexOf(channels, channel);
-        if (index < 0)
-        {
-            AddToStringArray(ref channels, channel);
-            if (currentTopMenuIndex == (int)ConsoleMenu.Channels)
-            {
-                UpdateChannelsSubMenu();
-            }
-        }
-		if(count >= maxLogs)
-		{
-			logs.RemoveAt(0);
-		}
-        cachedLogs = null;
-    }
 	
     public void AddCustomMenu(string name, MenuHandler callback)
     {
@@ -223,8 +171,8 @@ public class JBConsole : MonoBehaviour
 
     void OnChannelClicked(int index)
     {
-        string channel = channels[index];
-        if (channel == allChannelsName)
+        string channel = logger.Channels[index];
+        if (channel == JBLogger.allChannelsName)
         {
             viewingChannels = null;
         }
@@ -245,14 +193,14 @@ public class JBConsole : MonoBehaviour
             viewingChannels = new string[] { channel };
         }
         UpdateChannelsSubMenu();
-        cachedLogs = null;
+        logger.clearCache();
     }
 
     void OnLevelClicked(int index)
     {
         viewingLevel = (ConsoleLevel)Enum.GetValues(typeof(ConsoleLevel)).GetValue(index);
         UpdateLevelsSubMenu();
-        cachedLogs = null;
+        logger.clearCache();
     }
 
     void OnCustomMenuClicked(int index)
@@ -265,6 +213,7 @@ public class JBConsole : MonoBehaviour
 
     void UpdateChannelsSubMenu()
     {
+		var channels = logger.Channels;
         currentSubMenu = new string[channels.Length];
         Array.Copy(channels, currentSubMenu, channels.Length);
         if (viewingChannels == null)
@@ -287,7 +236,7 @@ public class JBConsole : MonoBehaviour
 
     void UpdateLevelsSubMenu()
     {
-        currentSubMenu = SelectedStateArrayIndex(levels, (int)viewingLevel, true);
+        currentSubMenu = SelectedStateArrayIndex(logger.Levels, (int)viewingLevel, true);
     }
 
     string[] SelectedStateArrayIndex(string[] array, int index, bool copy)
@@ -353,7 +302,7 @@ public class JBConsole : MonoBehaviour
 			if(newTerm != searchTerm)
 			{
             	searchTerm = newTerm.ToLower();
-				cachedLogs = null;
+				logger.clearCache();
 			}
             
             GUI.FocusControl("SearchTF");
@@ -371,6 +320,92 @@ public class JBConsole : MonoBehaviour
 			{
 				// User scrolled... TODO
 				scrollPosition.y = float.MaxValue;
+			}
+			else
+			{
+				scrollPosition = newPosition;
+			}
+			
+			var cachedLogs = logger.getCache(width, height);
+	        int len = cachedLogs.Count;
+	        for (int i = 0; i < len; i++)
+	        {
+				PrintLog(cachedLogs[i], maxwidthscreen);
+	        }
+			GUILayout.EndScrollView();
+		}
+        else
+		{
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+	        int len = logger.Logs.Count;
+			ConsoleLog log;
+			for (int i = 0; i < len; i++)
+			{
+				log = logger.Logs[i];
+				if (ShouldShow(log))
+				{
+					PrintLog(log, maxwidthscreen);
+				}
+			}
+			GUILayout.EndScrollView();
+		}
+		
+		autoscrolltogglerect.x = width - autoscrolltogglerect.width;
+		autoscrolltogglerect.y = height - autoscrolltogglerect.height;
+		if(GUI.Toggle(autoscrolltogglerect, autoScrolling, "Auto scroll") != autoScrolling)
+		{
+			autoScrolling = !autoScrolling;
+			if(!autoScrolling)
+			{
+				scrollPosition.y = float.MaxValue;
+			}
+		}
+		
+        GUILayout.EndVertical();
+	}
+	
+	void PrintLog(ConsoleLog log, GUILayoutOption maxwidthscreen)
+	{
+		if(log.repeats > 0)
+		{
+			GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
+		}
+		else
+		{
+			GUILayout.Label(log.content, maxwidthscreen);
+		}
+	}
+		
+	bool ShouldShow(ConsoleLog log)
+	{
+		return (log.level >= viewingLevel 
+			&& (viewingChannels == null || Array.IndexOf(viewingChannels, log.channel) >= 0)
+	        && (searchTerm == "" || log.content.text.ToLower().Contains(searchTerm)));
+	}
+
+	void notifyNewChannel(String newChannel){	
+        if (currentTopMenuIndex == (int)ConsoleMenu.Channels)
+        {
+            UpdateChannelsSubMenu();
+        }
+	}
+
+}
+
+
+
+
+delegate void SubMenuHandler(int index);
+
+public enum ConsoleMenu
+{
+    Channels,
+    Levels,
+    Search,
+    Menu,
+    Hide
+}
+t.MaxValue;
 			}
 			else
 			{
