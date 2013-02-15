@@ -106,7 +106,7 @@ public class JBConsole : MonoBehaviour
     public void AddCustomMenu(string name, MenuHandler callback)
     {
 		RemoveMenu(name);
-        AddToStringArray(ref customMenus, name);
+        JBConsoleUtils.AddToStringArray(ref customMenus, name);
         customMenuHandlers[customMenus.Length - 1] = callback;
     }
 
@@ -116,40 +116,11 @@ public class JBConsole : MonoBehaviour
 		{
 			if(customMenus[i] == name)
 			{
-				customMenus = StringsWithoutIndex(customMenus, i);
+				customMenus = JBConsoleUtils.StringsWithoutIndex(customMenus, i);
 				customMenuHandlers.Remove(i);
 				return;
 			}
 		}
-    }
-
-    void AddToStringArray(ref string[] strings, string str)
-    {
-        Array.Resize(ref strings, strings.Length + 1);
-        strings[strings.Length - 1] = str;
-    }
-
-    string[] StringsWithoutString(string[] strings, string str)
-    {
-        int index = Array.IndexOf(strings, str);
-        return StringsWithoutIndex(strings, index);
-    }
-
-    string[] StringsWithoutIndex(string[] strings, int index)
-    {
-        string[] result;
-        if (index >= 0)
-        {
-            result = new string[strings.Length - 1];
-            Array.Copy(strings, 0, result, 0, index);
-            Array.Copy(strings, index + 1, result, index, strings.Length - index - 1);
-        }
-        else
-        {
-            result = new string[strings.Length];
-            Array.Copy(strings, result, strings.Length);
-        }
-        return result;
     }
 
     void OnMenuSelection(int index)
@@ -195,12 +166,12 @@ public class JBConsole : MonoBehaviour
         {
             if (Array.IndexOf(viewingChannels, channel) >= 0)
             {
-                if (viewingChannels.Length > 1) viewingChannels = StringsWithoutString(viewingChannels, channel);
+                if (viewingChannels.Length > 1) viewingChannels = JBConsoleUtils.StringsWithoutString(viewingChannels, channel);
                 else viewingChannels = null;
             }
             else
             {
-                AddToStringArray(ref viewingChannels, channel);
+                JBConsoleUtils.AddToStringArray(ref viewingChannels, channel);
             }
         }
         else
@@ -228,7 +199,7 @@ public class JBConsole : MonoBehaviour
 
     void UpdateChannelsSubMenu()
     {
-		var channels = logger.Channels;
+		var channels = logger.Channels.ToArray();
         currentSubMenu = new string[channels.Length];
         Array.Copy(channels, currentSubMenu, channels.Length);
         if (viewingChannels == null)
@@ -365,16 +336,20 @@ public class JBConsole : MonoBehaviour
 			GUILayout.EndScrollView();
 		}
 		
-		autoscrolltogglerect.x = width - autoscrolltogglerect.width;
-		autoscrolltogglerect.y = height - autoscrolltogglerect.height;
-		if(GUI.Toggle(autoscrolltogglerect, autoScrolling, "Auto scroll") != autoScrolling)
+		if(!autoScrolling || scrollPosition.y > 0)
 		{
-			autoScrolling = !autoScrolling;
-			if(!autoScrolling)
+			autoscrolltogglerect.x = width - autoscrolltogglerect.width;
+			autoscrolltogglerect.y = height - autoscrolltogglerect.height;
+			if(GUI.Toggle(autoscrolltogglerect, autoScrolling, "Auto scroll") != autoScrolling)
 			{
-				scrollPosition.y = float.MaxValue;
+				autoScrolling = !autoScrolling;
+				if(!autoScrolling)
+				{
+					scrollPosition.y = float.MaxValue;
+				}
 			}
 		}
+		
 		
         GUILayout.EndVertical();
 	}
@@ -397,14 +372,6 @@ public class JBConsole : MonoBehaviour
 			&& (viewingChannels == null || Array.IndexOf(viewingChannels, log.channel) >= 0)
 	        && (searchTerm == "" || log.content.text.ToLower().Contains(searchTerm)));
 	}
-
-	void notifyNewChannel(String newChannel){	
-        if (currentTopMenuIndex == (int)ConsoleMenu.Channels)
-        {
-            UpdateChannelsSubMenu();
-        }
-	}
-	
 	
 	void CacheBottomOfLogs(float width, float height)
 	{

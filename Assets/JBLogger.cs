@@ -10,12 +10,12 @@ public class JBLogger
 	
 	public int maxLogs = 500;
 	
-    string[] channels;  
+    List<string> channels;  
 	
     List<ConsoleLog> logs = new List<ConsoleLog>();
 	int _stateHash = int.MinValue;
 	
-	public string[] Channels { get{return channels;} }
+	public List<string> Channels { get{return channels;} }
     public List<ConsoleLog> Logs { get{return logs;} }
 	public int stateHash { get { return _stateHash;} } // or just use delegate?
 		
@@ -35,7 +35,7 @@ public class JBLogger
 	
 	private JBLogger ()
 	{
-        channels = new string[] { allChannelsName, defaultChannelName };
+        channels = new List<string>() { allChannelsName, defaultChannelName };
 	}
 	
 	public static void Add(params string[] messages)
@@ -149,10 +149,9 @@ public class JBLogger
 			return;
 		}
         logs.Add(new ConsoleLog(level, channel, message));
-        int index = Array.IndexOf(channels, channel);
-        if (index < 0)
+        if (!channels.Contains(channel))
         {
-            AddToStringArray(ref channels, channel);
+			channels.Add(channel);
         }
 		if(count >= maxLogs) 
 		{
@@ -166,35 +165,6 @@ public class JBLogger
 		if(_stateHash < int.MaxValue) _stateHash++;
 		else _stateHash = int.MinValue;
 	}
-	
-	void AddToStringArray(ref string[] strings, string str)
-    {
-        Array.Resize(ref strings, strings.Length + 1);
-        strings[strings.Length - 1] = str;
-    }
-
-    string[] StringsWithoutString(string[] strings, string str)
-    {
-        int index = Array.IndexOf(strings, str);
-        return StringsWithoutIndex(strings, index);
-    }
-
-    string[] StringsWithoutIndex(string[] strings, int index)
-    {
-        string[] result;
-        if (index >= 0)
-        {
-            result = new string[strings.Length - 1];
-            Array.Copy(strings, 0, result, 0, index);
-            Array.Copy(strings, index + 1, result, index, strings.Length - index - 1);
-        }
-        else
-        {
-            result = new string[strings.Length];
-            Array.Copy(strings, result, strings.Length);
-        }
-        return result;
-    }
 }
 
 public enum ConsoleLevel
