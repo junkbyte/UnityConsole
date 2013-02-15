@@ -312,9 +312,11 @@ public class JBConsole : MonoBehaviour
 				scrollPosition = newPosition;
 			}
 			
-			var cachedLogs = getCache(width, height);
-	        int len = cachedLogs.Count;
-	        for (int i = 0; i < len; i++)
+			if (cachedLogs == null)
+	        {
+	            CacheBottomOfLogs(width, height);
+	        }
+	        for (int i = cachedLogs.Count - 1; i >= 0; i--)
 	        {
 				PrintLog(cachedLogs[i], maxwidthscreen);
 	        }
@@ -388,15 +390,6 @@ public class JBConsole : MonoBehaviour
 				height -= log.GetHeightForWidth(width);
 			}
 		}
-		cachedLogs.Reverse();
-	}
-	
-	public List<ConsoleLog> getCache(float width, float height){
-		if (cachedLogs == null)
-        {
-            CacheBottomOfLogs(width, height);
-        }
-		return cachedLogs;
 	}
 	
 	public void clearCache(){

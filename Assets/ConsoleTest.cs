@@ -6,6 +6,7 @@ public class ConsoleTest : MonoBehaviour {
     JBConsole console;
 
     float time;
+	int count;
 
 	// Use this for initialization
 	void Start ()
@@ -30,7 +31,8 @@ public class ConsoleTest : MonoBehaviour {
         time += Time.deltaTime;
         if (time < 3f)
         {
-            JBLogger.Add(ConsoleLevel.Info, "Test " + Random.value);
+            JBLogger.Add(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
+			count ++;
         }
 	}
 }
