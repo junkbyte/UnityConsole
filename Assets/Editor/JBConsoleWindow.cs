@@ -5,8 +5,6 @@ using System.Collections;
 public class JBConsoleWindow : EditorWindow
 {
 	
-	JBConsole console;
-	
 	void Start () {
 	
 	}
@@ -19,16 +17,17 @@ public class JBConsoleWindow : EditorWindow
 	
     void Update ()
 	{
-		if(JBConsole.instance != null)
-		{
-			console = JBConsole.instance;
-		}
 		Repaint();
     }
 	
 	void OnGUI()
 	{
-		if(console != null)
+		JBConsole console = JBConsole.instance;
+		if(console == null)
+		{
+			GUILayout.Label("Console will run in play mode...");
+		}
+		else
 		{
 			if(console.visible)
 			{

@@ -7,25 +7,17 @@ public class JBLogger
 	public const string allChannelsName = " * ";
     public const string defaultChannelName = " - ";
     public const ConsoleLevel defaultConsoleLevel = ConsoleLevel.Debug;
+	
 	public int maxLogs = 500;
-	public notifyNewLogChannel newChannelListener;
-	public logCacheFilter logCacheFilterDelegate;
 	
-	List<ConsoleLog> cachedLogs;
-	
-    string[] levels;
-	public string[] Levels {
-		get{return levels;}
-	}
     string[] channels;  
-	public string[] Channels {
-		get{return channels;}
-	}
 	
-    List<ConsoleLog> logs = new List<ConsoleLog>();	
-    public List<ConsoleLog> Logs {
-		get{return logs;}
-	}
+    List<ConsoleLog> logs = new List<ConsoleLog>();
+	int _stateHash = int.MinValue;
+	
+	public string[] Channels { get{return channels;} }
+    public List<ConsoleLog> Logs { get{return logs;} }
+	public int stateHash { get { return _stateHash;} } // or just use delegate?
 		
 	private static JBLogger _instance;
 
@@ -43,10 +35,8 @@ public class JBLogger
 	
 	private JBLogger ()
 	{
-        levels = Enum.GetNames(typeof(ConsoleLevel));
         channels = new string[] { allChannelsName, defaultChannelName };
 	}
-	
 	
 	public static void Add(params string[] messages)
     {
@@ -104,14 +94,14 @@ public class JBLogger
         instance.AddCh(ConsoleLevel.Debug, channel, message);
     }
 	
-	public static void WarnCh(string channel, string message)
-    {
-        instance.AddCh(ConsoleLevel.Warn, channel, message);
-    }
-	
 	public static void InfoCh(string channel, string message)
     {
         instance.AddCh(ConsoleLevel.Info, channel, message);
+    }
+	
+	public static void WarnCh(string channel, string message)
+    {
+        instance.AddCh(ConsoleLevel.Warn, channel, message);
     }
 	
 	public static void ErrorCh(string channel, string message)
@@ -129,9 +119,9 @@ public class JBLogger
         instance.AddCh(ConsoleLevel.Debug, channel, string.Join(" ", messages));
     }
 	
-	public static void ErrorCh(string channel, params string[] messages)
+	public static void InfoCh(string channel, params string[] messages)
     {
-        instance.AddCh(ConsoleLevel.Error, channel, string.Join(" ", messages));
+        instance.AddCh(ConsoleLevel.Info, channel, string.Join(" ", messages));
     }
 		
 	public static void WarnCh(string channel, params string[] messages)
@@ -139,9 +129,9 @@ public class JBLogger
         instance.AddCh(ConsoleLevel.Warn, channel, string.Join(" ", messages));
     }
 	
-	public static void InfoCh(string channel, params string[] messages)
+	public static void ErrorCh(string channel, params string[] messages)
     {
-        instance.AddCh(ConsoleLevel.Info, channel, string.Join(" ", messages));
+        instance.AddCh(ConsoleLevel.Error, channel, string.Join(" ", messages));
     }
 	
 	public static void FatalCh(string channel, params string[] messages)
@@ -155,7 +145,7 @@ public class JBLogger
 		if(count > 0 && logs[count-1].content != null && logs[count-1].content.text == message)
 		{
 			logs[count - 1].repeats++;
-			clearCache();
+			Changed();
 			return;
 		}
         logs.Add(new ConsoleLog(level, channel, message));
@@ -163,16 +153,19 @@ public class JBLogger
         if (index < 0)
         {
             AddToStringArray(ref channels, channel);
-			clearCache();
-			if (newChannelListener != null)
-				newChannelListener(channel);
         }
-		if(count >= maxLogs)
+		if(count >= maxLogs) 
 		{
 			logs.RemoveAt(0);
-			clearCache();
 		}
+		Changed();
     }
+	
+	void Changed()
+	{
+		if(_stateHash < int.MaxValue) _stateHash++;
+		else _stateHash = int.MinValue;
+	}
 	
 	void AddToStringArray(ref string[] strings, string str)
     {
@@ -202,35 +195,6 @@ public class JBLogger
         }
         return result;
     }
-	
-	public List<ConsoleLog> getCache(float width, float height){
-		if (cachedLogs == null)
-        {
-            CacheBottomOfLogs(width, height);
-        }
-		return cachedLogs;
-	}
-	
-	public void clearCache(){
-		cachedLogs = null;
-	}
-	
-	void CacheBottomOfLogs(float width, float height)
-	{
-		//TODO, avoid needing to create new list.
-		cachedLogs = new List<ConsoleLog>();
-		ConsoleLog log;
-		for(int i = logs.Count - 1; i >= 0 && height > 0; i--)
-		{
-			log = logs[i];
-			if (logCacheFilterDelegate != null && logCacheFilterDelegate(log))
-			{
-				cachedLogs.Add(log);
-				height -= log.GetHeightForWidth(width);
-			}
-		}
-		cachedLogs.Reverse();
-	}
 }
 
 public enum ConsoleLevel
@@ -266,6 +230,3 @@ public class ConsoleLog
         return height;
     }
 }
-
-public delegate void notifyNewLogChannel(String channel);
-public delegate bool logCacheFilter(ConsoleLog log);

@@ -6,24 +6,23 @@ public delegate void MenuHandler();
 
 public class JBConsole : MonoBehaviour
 {
-
-	public JBConsole(){
-		logger = JBLogger.instance;
-		logger.newChannelListener = notifyNewChannel;
-		logger.logCacheFilterDelegate = ShouldShow;
-	}
 	
 	private static JBConsole _instance;
+	
+	public static JBConsole InitIfRequired()
+	{
+		if(_instance == null)
+		{
+			GameObject go = new GameObject("JBConsole");
+			_instance = go.AddComponent<JBConsole>();
+		}
+		return _instance;
+	}
 	
 	public static JBConsole instance
 	{
 		get
 		{
-			if(_instance == null)
-			{
-				GameObject go = new GameObject("JBConsole");
-				_instance = go.AddComponent<JBConsole>();
-			}
 			return _instance;
 		}
 	}
@@ -38,7 +37,8 @@ public class JBConsole : MonoBehaviour
     public bool visible = false;
     public int menuItemWidth = 100;
 	public KeyCode toggleKey = KeyCode.BackQuote;
-
+	
+    string[] levels;
     string[] topMenu;
     Dictionary<int, MenuHandler> customMenuHandlers;
 
@@ -50,6 +50,8 @@ public class JBConsole : MonoBehaviour
     string[] currentTopMenu;
     string[] currentSubMenu;
     SubMenuHandler subMenuHandler;
+	
+	List<ConsoleLog> cachedLogs;
 
     string searchTerm = "";
 
@@ -58,11 +60,19 @@ public class JBConsole : MonoBehaviour
 	Rect autoscrolltogglerect = new Rect(0, 0, 100, 22);
 
     Vector2 scrollPosition;
+	
+	int stateHash;
 		
+	public JBConsole()
+	{
+		logger = JBLogger.instance;
+	}
+	
 	void Awake ()
 	{
 		if(_instance == null) _instance = this;
 		
+        levels = Enum.GetNames(typeof(ConsoleLevel));
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
 
         customMenus = new string[0];
@@ -71,6 +81,11 @@ public class JBConsole : MonoBehaviour
 	
 	void Update ()
     {
+		if(logger.stateHash != stateHash)
+		{
+			stateHash = logger.stateHash;
+			clearCache();
+		}
 		if(Input.GetKeyDown(toggleKey))
 		{
 			visible = !visible;
@@ -193,14 +208,14 @@ public class JBConsole : MonoBehaviour
             viewingChannels = new string[] { channel };
         }
         UpdateChannelsSubMenu();
-        logger.clearCache();
+        clearCache();
     }
 
     void OnLevelClicked(int index)
     {
         viewingLevel = (ConsoleLevel)Enum.GetValues(typeof(ConsoleLevel)).GetValue(index);
         UpdateLevelsSubMenu();
-        logger.clearCache();
+        clearCache();
     }
 
     void OnCustomMenuClicked(int index)
@@ -236,7 +251,7 @@ public class JBConsole : MonoBehaviour
 
     void UpdateLevelsSubMenu()
     {
-        currentSubMenu = SelectedStateArrayIndex(logger.Levels, (int)viewingLevel, true);
+        currentSubMenu = SelectedStateArrayIndex(levels, (int)viewingLevel, true);
     }
 
     string[] SelectedStateArrayIndex(string[] array, int index, bool copy)
@@ -302,7 +317,7 @@ public class JBConsole : MonoBehaviour
 			if(newTerm != searchTerm)
 			{
             	searchTerm = newTerm.ToLower();
-				logger.clearCache();
+				clearCache();
 			}
             
             GUI.FocusControl("SearchTF");
@@ -326,7 +341,7 @@ public class JBConsole : MonoBehaviour
 				scrollPosition = newPosition;
 			}
 			
-			var cachedLogs = logger.getCache(width, height);
+			var cachedLogs = getCache(width, height);
 	        int len = cachedLogs.Count;
 	        for (int i = 0; i < len; i++)
 	        {
@@ -389,11 +404,38 @@ public class JBConsole : MonoBehaviour
             UpdateChannelsSubMenu();
         }
 	}
-
+	
+	
+	void CacheBottomOfLogs(float width, float height)
+	{
+		//TODO, avoid needing to create new list.
+		cachedLogs = new List<ConsoleLog>();
+		List<ConsoleLog> logs = logger.Logs;
+		ConsoleLog log;
+		for(int i = logs.Count - 1; i >= 0 && height > 0; i--)
+		{
+			log = logs[i];
+			if (ShouldShow(log))
+			{
+				cachedLogs.Add(log);
+				height -= log.GetHeightForWidth(width);
+			}
+		}
+		cachedLogs.Reverse();
+	}
+	
+	public List<ConsoleLog> getCache(float width, float height){
+		if (cachedLogs == null)
+        {
+            CacheBottomOfLogs(width, height);
+        }
+		return cachedLogs;
+	}
+	
+	public void clearCache(){
+		cachedLogs = null;
+	}
 }
-
-
-
 
 delegate void SubMenuHandler(int index);
 
