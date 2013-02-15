@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Diagnostics;
 
 public class JBLogger
 {
@@ -148,7 +149,9 @@ public class JBLogger
 			Changed();
 			return;
 		}
-        logs.Add(new ConsoleLog(level, channel, message));
+		StackTrace stackTrace = new StackTrace(); 
+		StackFrame[] stackFrames = stackTrace.GetFrames();
+        logs.Add(new ConsoleLog(level, channel, message, stackFrames));
         if (!channels.Contains(channel))
         {
 			channels.Add(channel);
@@ -184,11 +187,18 @@ public class ConsoleLog
 	public int repeats;
     public float height;
 
-    public ConsoleLog(ConsoleLevel level_, string channel_, string message)
+    public ConsoleLog(ConsoleLevel level_, string channel_, string message, StackFrame[] stackFrames)
     {
         level = level_;
         channel = channel_;
-        content = new GUIContent(message);
+		
+		string stack = "";
+		foreach (StackFrame stackFrame in stackFrames)
+		{
+			stack += stackFrame.GetFileName() + ": " + stackFrame.GetMethod().ToString() + " @ " +stackFrame.GetFileLineNumber() + "\n";
+		}
+				
+        content = new GUIContent(message, stack);
     }
 
     public float GetHeightForWidth(float width)

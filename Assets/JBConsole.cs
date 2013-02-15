@@ -352,8 +352,12 @@ public class JBConsole : MonoBehaviour
 			}
 		}
 		
-		
         GUILayout.EndVertical();
+		
+		if(GUI.tooltip.Length > 0)
+		{
+			GUI.Label(new Rect(0, Screen.height - Input.mousePosition.y + 10, Screen.width, 100), GUI.tooltip);
+		}
 	}
 	
 	void PrintLog(ConsoleLog log, GUILayoutOption maxwidthscreen)
