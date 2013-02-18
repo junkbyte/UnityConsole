@@ -22,13 +22,9 @@ public class JBConsoleWindow : EditorWindow
 	
 	void OnGUI()
 	{
-		JBConsole console = JBConsole.instance;
-		if(console == null)
+		if(JBConsole.exists)
 		{
-			GUILayout.Label("Console will run in play mode...");
-		}
-		else
-		{
+			JBConsole console = JBConsole.instance;
 			if(console.visible)
 			{
 				GUILayout.Label("JunkByte Console visible in game.");
@@ -40,6 +36,15 @@ public class JBConsoleWindow : EditorWindow
 			else
 			{
 				console.DrawGUI(position.width, position.height);
+			}
+		}
+		else
+		{
+			GUILayout.Label("Console not initialized...");
+			if(GUILayout.Button("Initialize"))
+			{
+				JBConsole.Start();
+				JBConsole.instance.visible = true;
 			}
 		}
 	}

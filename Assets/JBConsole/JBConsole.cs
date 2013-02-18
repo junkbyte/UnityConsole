@@ -9,7 +9,7 @@ public class JBConsole : MonoBehaviour
 	
 	private static JBConsole _instance;
 	
-	public static JBConsole InitIfRequired()
+	public static JBConsole Start()
 	{
 		if(_instance == null)
 		{

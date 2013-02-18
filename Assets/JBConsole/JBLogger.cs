@@ -142,25 +142,28 @@ public class JBLogger
 	
     public void AddCh(ConsoleLevel level, string channel, string message)
     {
-		int count = logs.Count;
-		if(count > 0 && logs[count-1].content != null && logs[count-1].content.text == message)
+		lock(this)
 		{
-			logs[count - 1].repeats++;
+			int count = logs.Count;
+			if(count > 0 && logs[count-1].content != null && logs[count-1].content.text == message)
+			{
+				logs[count - 1].repeats++;
+				Changed();
+				return;
+			}
+			StackTrace stackTrace = new StackTrace(); 
+			StackFrame[] stackFrames = stackTrace.GetFrames();
+	        logs.Add(new ConsoleLog(level, channel, message, stackFrames));
+	        if (!channels.Contains(channel))
+	        {
+				channels.Add(channel);
+	        }
+			if(count >= maxLogs) 
+			{
+				logs.RemoveAt(0);
+			}
 			Changed();
-			return;
 		}
-		StackTrace stackTrace = new StackTrace(); 
-		StackFrame[] stackFrames = stackTrace.GetFrames();
-        logs.Add(new ConsoleLog(level, channel, message, stackFrames));
-        if (!channels.Contains(channel))
-        {
-			channels.Add(channel);
-        }
-		if(count >= maxLogs) 
-		{
-			logs.RemoveAt(0);
-		}
-		Changed();
     }
 	
 	void Changed()

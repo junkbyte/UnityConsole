@@ -11,7 +11,7 @@ public class ConsoleTest : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-		JBConsole.InitIfRequired();
+		JBConsole.Start();
 		
         JBLogger.Add(ConsoleLevel.Info, "Test Info");
         JBLogger.Add(ConsoleLevel.Debug, "Test", "test Debug");
