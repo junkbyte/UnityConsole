@@ -8,10 +8,12 @@ public class ConsoleTest : MonoBehaviour {
     float time;
 	int count;
 
-	// Use this for initialization
 	void Start ()
     {
-		JBConsole.Start();
+		JBConsole console = JBConsole.Start();
+		
+		JBCToggleOnKey.RegisterToConsole();
+		JBCVisibleOnPress.RegisterToConsole();
 		
         JBLogger.Add(ConsoleLevel.Info, "Test Info");
         JBLogger.Add(ConsoleLevel.Debug, "Test", "test Debug");
@@ -25,7 +27,7 @@ public class ConsoleTest : MonoBehaviour {
         JBLogger.AddCh("myChannel 2", "Test myChannel 2");
 	}
 	
-	// Update is called once per frame
+	
     void Update()
     {
         time += Time.deltaTime;

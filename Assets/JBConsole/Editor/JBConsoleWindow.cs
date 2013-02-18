@@ -22,6 +22,11 @@ public class JBConsoleWindow : EditorWindow
 	
 	void OnGUI()
 	{
+		if(!Application.isPlaying)
+		{
+			GUILayout.Label("Console will be available during play mode.");
+			return;
+		}
 		if(JBConsole.exists)
 		{
 			JBConsole console = JBConsole.instance;

@@ -36,7 +36,6 @@ public class JBConsole : MonoBehaviour
 
     public bool visible = false;
     public int menuItemWidth = 100;
-	public KeyCode toggleKey = KeyCode.BackQuote;
 	
     string[] levels;
     string[] topMenu;
@@ -65,18 +64,33 @@ public class JBConsole : MonoBehaviour
 		
 	public JBConsole()
 	{
-		logger = JBLogger.instance;
+		
 	}
 	
 	void Awake ()
 	{
 		if(_instance == null) _instance = this;
 		
+		logger = JBLogger.instance;
+		
         levels = Enum.GetNames(typeof(ConsoleLevel));
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
 
         customMenus = new string[0];
         customMenuHandlers = new Dictionary<int, MenuHandler>();
+		
+		
+		//
+		AddMenu("Email", delegate()
+		{
+			string body = "";
+			foreach(ConsoleLog log in logger.Logs)
+			{
+				body += log.content.text + "\n";
+			}
+			body = WWW.EscapeURL(body);
+			Application.OpenURL("mailto:?subject=ConsoleLog&body="+body);
+		});
 	}
 	
 	void Update ()
@@ -86,19 +100,17 @@ public class JBConsole : MonoBehaviour
 			stateHash = logger.stateHash;
 			clearCache();
 		}
-		if(Input.GetKeyDown(toggleKey))
-		{
-			visible = !visible;
-		}
 	}
 	
     public static void AddMenu(string name, MenuHandler callback)
 	{
+		if(!exists) return;
 		instance.AddCustomMenu(name, callback);
 	}
 	
     public static void RemoveMenu(string name)
 	{
+		if(!exists) return;
 		instance.RemoveCustomMenu(name);
 	}
 
@@ -316,25 +328,17 @@ public class JBConsole : MonoBehaviour
 	        {
 	            CacheBottomOfLogs(width, height);
 	        }
-	        for (int i = cachedLogs.Count - 1; i >= 0; i--)
-	        {
-				PrintLog(cachedLogs[i], maxwidthscreen);
-	        }
+			PrintCachedLogs(maxwidthscreen);
 			GUILayout.EndScrollView();
 		}
         else
 		{
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
-	        int len = logger.Logs.Count;
-			ConsoleLog log;
-			for (int i = 0; i < len; i++)
-			{
-				log = logger.Logs[i];
-				if (ShouldShow(log))
-				{
-					PrintLog(log, maxwidthscreen);
-				}
-			}
+			if (cachedLogs == null)
+	        {
+	            CacheAllOfLogs();
+	        }
+			PrintCachedLogs(maxwidthscreen);
 			GUILayout.EndScrollView();
 		}
 		
@@ -345,6 +349,7 @@ public class JBConsole : MonoBehaviour
 			if(GUI.Toggle(autoscrolltogglerect, autoScrolling, "Auto scroll") != autoScrolling)
 			{
 				autoScrolling = !autoScrolling;
+				clearCache();
 				if(!autoScrolling)
 				{
 					scrollPosition.y = float.MaxValue;
@@ -360,15 +365,21 @@ public class JBConsole : MonoBehaviour
 		}
 	}
 	
-	void PrintLog(ConsoleLog log, GUILayoutOption maxwidthscreen)
+	
+	void PrintCachedLogs(GUILayoutOption maxwidthscreen)
 	{
-		if(log.repeats > 0)
+		ConsoleLog log;
+		for (int i = cachedLogs.Count - 1; i >= 0; i--)
 		{
-			GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
-		}
-		else
-		{
-			GUILayout.Label(log.content, maxwidthscreen);
+			log = cachedLogs[i];
+			if(log.repeats > 0)
+			{
+				GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
+			}
+			else
+			{
+				GUILayout.Label(log.content, maxwidthscreen);
+			}
 		}
 	}
 		
@@ -392,6 +403,22 @@ public class JBConsole : MonoBehaviour
 			{
 				cachedLogs.Add(log);
 				height -= log.GetHeightForWidth(width);
+			}
+		}
+	}
+	
+	void CacheAllOfLogs()
+	{
+		//TODO, avoid needing to create new list.
+		cachedLogs = new List<ConsoleLog>();
+		List<ConsoleLog> logs = logger.Logs;
+		ConsoleLog log;
+		for(int i = logs.Count - 1; i >= 0; i--)
+		{
+			log = logs[i];
+			if (ShouldShow(log))
+			{
+				cachedLogs.Add(log);
 			}
 		}
 	}
