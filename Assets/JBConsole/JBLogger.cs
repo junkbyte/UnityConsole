@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
+using System.Text;
+using System.Collections;
 
 public class JBLogger
 {
@@ -39,34 +41,9 @@ public class JBLogger
         channels = new List<string>() { allChannelsName, defaultChannelName };
 	}
 	
-	public static void Add(params string[] messages)
+	public static void Log(string message)
     {
-        instance.AddCh(defaultConsoleLevel, defaultChannelName, string.Join(" ", messages));
-    }
-
-    public static void Add(ConsoleLevel level, params string[] messages)
-    {
-        instance.AddCh(level, defaultChannelName, string.Join(" " ,messages));
-    }
-
-    public static void Add(ConsoleLevel level, string message)
-    {
-        instance.AddCh(level, defaultChannelName, message);
-    }
-
-    public static void AddCh(string channel, params string[] messages)
-    {
-        instance.AddCh(defaultConsoleLevel, channel, string.Join(" ", messages));
-    }
-
-    public static void AddCh(string channel, string message)
-    {
-        instance.AddCh(defaultConsoleLevel, channel, message);
-    }
-
-    public static void AddCh(ConsoleLevel level, string channel, params string[] messages)
-    {
-        instance.AddCh(level, channel, string.Join(" ", messages));
+        instance.AddCh(ConsoleLevel.Debug, defaultChannelName, message);
     }
 	
 	public static void Debug(string message)
@@ -87,6 +64,31 @@ public class JBLogger
 	public static void Error(string message)
     {
         instance.AddCh(ConsoleLevel.Error, defaultChannelName, message);
+    }
+	
+	public static void Log(params object[] objects)
+    {
+        instance.AddCh(ConsoleLevel.Debug, defaultChannelName, GetStringOf(objects));
+    }
+	
+	public static void Debug(params object[] objects)
+    {
+        instance.AddCh(ConsoleLevel.Debug, defaultChannelName, GetStringOf(objects));
+    }
+
+	public static void Warn(params object[] objects)
+    {
+        instance.AddCh(ConsoleLevel.Warn, defaultChannelName, GetStringOf(objects));
+    }
+	
+	public static void Info(params object[] objects)
+    {
+        instance.AddCh(ConsoleLevel.Info, defaultChannelName, GetStringOf(objects));
+    }
+
+	public static void Error(params object[] objects)
+    {
+        instance.AddCh(ConsoleLevel.Error, defaultChannelName, GetStringOf(objects));
     }
 
 	
@@ -115,29 +117,62 @@ public class JBLogger
         instance.AddCh(ConsoleLevel.Fatal, channel, message);
     }
 	
-	public static void DebugCh(string channel, params string[] messages)
+	public static void DebugCh(string channel, params object[] objects)
     {
-        instance.AddCh(ConsoleLevel.Debug, channel, string.Join(" ", messages));
+        instance.AddCh(ConsoleLevel.Debug, channel, GetStringOf(objects));
     }
 	
-	public static void InfoCh(string channel, params string[] messages)
+	public static void InfoCh(string channel, params object[] objects)
     {
-        instance.AddCh(ConsoleLevel.Info, channel, string.Join(" ", messages));
+        instance.AddCh(ConsoleLevel.Info, channel, GetStringOf(objects));
     }
 		
-	public static void WarnCh(string channel, params string[] messages)
+	public static void WarnCh(string channel, params object[] objects)
     {
-        instance.AddCh(ConsoleLevel.Warn, channel, string.Join(" ", messages));
+        instance.AddCh(ConsoleLevel.Warn, channel, GetStringOf(objects));
     }
 	
-	public static void ErrorCh(string channel, params string[] messages)
+	public static void ErrorCh(string channel, params object[] objects)
     {
-        instance.AddCh(ConsoleLevel.Error, channel, string.Join(" ", messages));
+        instance.AddCh(ConsoleLevel.Error, channel, GetStringOf(objects));
     }
 	
-	public static void FatalCh(string channel, params string[] messages)
+	public static void FatalCh(string channel, params object[] objects)
     {
-        instance.AddCh(ConsoleLevel.Fatal, channel, string.Join(" ", messages));
+        instance.AddCh(ConsoleLevel.Fatal, channel, GetStringOf(objects));
+    }
+	
+	static string GetStringOf(object[] objects)
+	{
+		StringBuilder strb = new StringBuilder();
+		int end = objects.Length - 1;
+		object obj;
+		for(int i = 0; i <= end; i++)
+		{
+			obj = objects.GetValue(i);
+			
+			/*
+			// TODO: read object type and print more info about it...
+			Type type = obj.GetType();
+			if(type.IsArray)
+			{
+				obj = "Array " + ((Array) obj).Length;
+			}
+			else if(obj is IList)
+			{
+			    obj = "[" + type + " Count: " + ((IList) obj).Count + "]";
+			}
+			*/
+			
+			strb.Append(obj);
+			if(i < end) strb.Append(" ");
+		}
+		return strb.ToString();
+	}
+	
+    public static void AddCh(ConsoleLevel level, string channel, params object[] objects)
+    {
+        instance.AddCh(level, channel, GetStringOf(objects));
     }
 	
     public void AddCh(ConsoleLevel level, string channel, string message)

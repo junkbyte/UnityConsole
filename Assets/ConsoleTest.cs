@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ConsoleTest : MonoBehaviour {
 
@@ -10,21 +11,23 @@ public class ConsoleTest : MonoBehaviour {
 
 	void Start ()
     {
-		JBConsole console = JBConsole.Start();
+		JBConsole.Start();
 		
 		JBCToggleOnKey.RegisterToConsole();
 		JBCVisibleOnPress.RegisterToConsole();
 		
-        JBLogger.Add(ConsoleLevel.Info, "Test Info");
-        JBLogger.Add(ConsoleLevel.Debug, "Test", "test Debug");
-        JBLogger.Add(ConsoleLevel.Debug, "Test", "test Debug");
-        JBLogger.Add(ConsoleLevel.Warn, "Test", "Warn");
-        JBLogger.Add(ConsoleLevel.Warn, "Test", "Warn");
-        JBLogger.Add(ConsoleLevel.Warn, "Test", "Warn");
-        JBLogger.Add(ConsoleLevel.Warn, "Test", "Warn");
-        JBLogger.Add(ConsoleLevel.Error, "Test", "Error");
-        JBLogger.AddCh("myChannel", "Test myChannel");
-        JBLogger.AddCh("myChannel 2", "Test myChannel 2");
+        JBLogger.Info("Test Info");
+        JBLogger.Debug(ConsoleLevel.Debug, "Test", "test Debug");
+        JBLogger.Debug(ConsoleLevel.Debug, "Test", "test Debug");
+        JBLogger.Warn(ConsoleLevel.Warn, "Test", "Warn");
+        JBLogger.Warn(ConsoleLevel.Warn, "Test", "Warn");
+        JBLogger.Warn(ConsoleLevel.Warn, "Test", "Warn");
+        JBLogger.Warn(ConsoleLevel.Warn, "Test", "Warn");
+        JBLogger.Error(ConsoleLevel.Error, "Test", "Error");
+        JBLogger.InfoCh("myChannel", "Test myChannel");
+        JBLogger.WarnCh("myChannel 2", "Test myChannel 2");
+		
+		JBLogger.Info (new List<string>(){"bla bla", "and blaaa"});
 	}
 	
 	
@@ -33,7 +36,7 @@ public class ConsoleTest : MonoBehaviour {
         time += Time.deltaTime;
         if (time < 3f)
         {
-            JBLogger.Add(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
+            //JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
 			count ++;
         }
 	}
