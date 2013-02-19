@@ -7,6 +7,7 @@ public class ConsoleTest : MonoBehaviour {
     JBConsole console;
 
     float time;
+	float delay;
 	int count;
 
 	void Start ()
@@ -34,10 +35,16 @@ public class ConsoleTest : MonoBehaviour {
     void Update()
     {
         time += Time.deltaTime;
-        if (time < 3f)
+        //if (time < 20f)
         {
-            //JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
-			count ++;
+			delay += Time.deltaTime;
+			if(delay >= 0.25f)
+			{
+				delay = 0;
+				JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
+				count ++;
+			}
+            
         }
 	}
 }

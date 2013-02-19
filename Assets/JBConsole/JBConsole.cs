@@ -56,7 +56,7 @@ public class JBConsole : MonoBehaviour
 
 	bool autoScrolling = true;
 	
-	Rect autoscrolltogglerect = new Rect(0, 0, 100, 22);
+	Rect autoscrolltogglerect = new Rect(0, 0, 110, 22);
 
     Vector2 scrollPosition;
 	
@@ -95,7 +95,7 @@ public class JBConsole : MonoBehaviour
 	
 	void Update ()
     {
-		if(logger.stateHash != stateHash)
+		if(autoScrolling && logger.stateHash != stateHash)
 		{
 			stateHash = logger.stateHash;
 			clearCache();
@@ -163,6 +163,7 @@ public class JBConsole : MonoBehaviour
                 visible = !visible;
                 return;
         }
+		EnsureScrollPosition();
         currentTopMenuIndex = index;
         currentTopMenu = SelectedStateArrayIndex(topMenu, index, true);
     }
@@ -305,31 +306,21 @@ public class JBConsole : MonoBehaviour
             
             GUI.FocusControl("SearchTF");
         }
+		
+		bool wasForcedBottom = scrollPosition.y == float.MaxValue;
+		
 		if(autoScrolling)
 		{
-			//if(cachedLogs == null)
+			if(cachedLogs == null && Event.current.type == EventType.Layout)
 			{
 				scrollPosition.y = float.MaxValue;
 			}
-			
-			Vector2 newPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
-			
-			if(scrollPosition.y != float.MaxValue && scrollPosition.y != newPosition.y)
-			{
-				// User scrolled... TODO
-				scrollPosition.y = float.MaxValue;
-			}
-			else
-			{
-				scrollPosition = newPosition;
-			}
-			
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
 			if (cachedLogs == null)
 	        {
 	            CacheBottomOfLogs(width, height);
 	        }
 			PrintCachedLogs(maxwidthscreen);
-			GUILayout.EndScrollView();
 		}
         else
 		{
@@ -339,32 +330,54 @@ public class JBConsole : MonoBehaviour
 	            CacheAllOfLogs();
 	        }
 			PrintCachedLogs(maxwidthscreen);
-			GUILayout.EndScrollView();
 		}
+		Rect lastContentRect = GUILayoutUtility.GetLastRect();
+		GUILayout.EndScrollView();
 		
-		if(!autoScrolling || scrollPosition.y > 0)
+		Rect scrollViewRect = GUILayoutUtility.GetLastRect();
+		if(Event.current.type == EventType.Repaint)
 		{
-			autoscrolltogglerect.x = width - autoscrolltogglerect.width;
-			autoscrolltogglerect.y = height - autoscrolltogglerect.height;
-			if(GUI.Toggle(autoscrolltogglerect, autoScrolling, "Auto scroll") != autoScrolling)
+			float maxscroll = lastContentRect.y + lastContentRect.height - scrollViewRect.height + 4; // where 4 = scroll view's skin bound size?
+			
+			bool atbottom = scrollPosition.y == maxscroll;
+			if(!autoScrolling && wasForcedBottom)
 			{
-				autoScrolling = !autoScrolling;
+				scrollPosition.y = maxscroll - 1;
+			}
+			else if(autoScrolling != atbottom)
+			{
+				autoScrolling = atbottom;
+				scrollPosition.y = float.MaxValue;
 				clearCache();
-				if(!autoScrolling)
-				{
-					scrollPosition.y = float.MaxValue;
-				}
 			}
 		}
 		
         GUILayout.EndVertical();
 		
+		if(!autoScrolling)
+		{
+			autoscrolltogglerect.x = width - autoscrolltogglerect.width;
+			autoscrolltogglerect.y = height - autoscrolltogglerect.height;
+
+			if(GUI.Button(autoscrolltogglerect, "Scroll to bottom"))
+			{
+				autoScrolling = true;
+			}
+		}
+		
 		if(GUI.tooltip.Length > 0)
 		{
-			GUI.Label(new Rect(0, Screen.height - Input.mousePosition.y + 10, Screen.width, 100), GUI.tooltip);
+			//GUI.Label(new Rect(0, Screen.height - Input.mousePosition.y + 10, Screen.width, 100), GUI.tooltip);
 		}
 	}
 	
+	void EnsureScrollPosition()
+	{
+		if(autoScrolling)
+		{
+			scrollPosition.y = float.MaxValue;
+		}
+	}
 	
 	void PrintCachedLogs(GUILayoutOption maxwidthscreen)
 	{
