@@ -33,6 +33,7 @@ public class JBConsole : MonoBehaviour
 	}
 	
 	private JBLogger logger;
+	private JBCStyle style;
 
     public bool visible = false;
     public int menuItemWidth = 100;
@@ -64,7 +65,7 @@ public class JBConsole : MonoBehaviour
 		
 	public JBConsole()
 	{
-		
+		style = new JBCStyle();
 	}
 	
 	void Awake ()
@@ -267,7 +268,7 @@ public class JBConsole : MonoBehaviour
 	{
         GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
 
-        GUILayout.BeginVertical("box");
+        GUILayout.BeginVertical(style.Skin.box);
 
         //GUILayout.BeginHorizontal();
 		//GUILayout.FlexibleSpace();
@@ -337,9 +338,9 @@ public class JBConsole : MonoBehaviour
 		Rect scrollViewRect = GUILayoutUtility.GetLastRect();
 		if(Event.current.type == EventType.Repaint)
 		{
-			float maxscroll = lastContentRect.y + lastContentRect.height - scrollViewRect.height + 4; // where 4 = scroll view's skin bound size?
+			float maxscroll = lastContentRect.y + lastContentRect.height - scrollViewRect.height;
 			
-			bool atbottom = scrollPosition.y == maxscroll;
+			bool atbottom = maxscroll <= 0 || scrollPosition.y > maxscroll - 4; // where 4 = scroll view's skin bound size?
 			if(!autoScrolling && wasForcedBottom)
 			{
 				scrollPosition.y = maxscroll - 1;
@@ -387,11 +388,11 @@ public class JBConsole : MonoBehaviour
 			log = cachedLogs[i];
 			if(log.repeats > 0)
 			{
-				GUILayout.Label(log.repeats + "x " +log.content.text, maxwidthscreen);
+				GUILayout.Label(log.repeats + "x " +log.content.text, style.GetStyleForLogLevel(log.level), maxwidthscreen);
 			}
 			else
 			{
-				GUILayout.Label(log.content, maxwidthscreen);
+				GUILayout.Label(log.content, style.GetStyleForLogLevel(log.level), maxwidthscreen);
 			}
 		}
 	}
@@ -409,13 +410,14 @@ public class JBConsole : MonoBehaviour
 		cachedLogs = new List<ConsoleLog>();
 		List<ConsoleLog> logs = logger.Logs;
 		ConsoleLog log;
+		float lineHeight = style.GetLogLineHeight();
 		for(int i = logs.Count - 1; i >= 0 && height > 0; i--)
 		{
 			log = logs[i];
 			if (ShouldShow(log))
 			{
 				cachedLogs.Add(log);
-				height -= log.GetHeightForWidth(width);
+				height -= lineHeight;
 			}
 		}
 	}

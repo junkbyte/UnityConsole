@@ -150,10 +150,15 @@ public class JBLogger
 		for(int i = 0; i <= end; i++)
 		{
 			obj = objects.GetValue(i);
+			Type type = obj.GetType();
 			
+			if(type.IsPrimitive)
+			{
+				obj = "<i>"+ obj + "</i>";
+			}
 			/*
 			// TODO: read object type and print more info about it...
-			Type type = obj.GetType();
+			
 			if(type.IsArray)
 			{
 				obj = "Array " + ((Array) obj).Length;
@@ -163,7 +168,6 @@ public class JBLogger
 			    obj = "[" + type + " Count: " + ((IList) obj).Count + "]";
 			}
 			*/
-			
 			strb.Append(obj);
 			if(i < end) strb.Append(" ");
 		}
@@ -223,7 +227,6 @@ public class ConsoleLog
     public string channel;
     public GUIContent content;
 	public int repeats;
-    public float height;
 
     public ConsoleLog(ConsoleLevel level_, string channel_, string message, StackFrame[] stackFrames)
     {
@@ -235,16 +238,6 @@ public class ConsoleLog
 		{
 			stack += stackFrame.GetFileName() + ": " + stackFrame.GetMethod().ToString() + " @ " +stackFrame.GetFileLineNumber() + "\n";
 		}
-				
         content = new GUIContent(message, stack);
-    }
-
-    public float GetHeightForWidth(float width)
-    {
-        if (height <= 0)
-        {
-            height = GUI.skin.label.CalcHeight(content, width);
-        }
-        return height;
     }
 }
