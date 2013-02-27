@@ -7,15 +7,19 @@ public class JBCStyle
 	
 	Dictionary<ConsoleLevel, GUIStyle> levelToStyle;
 	
-	GUISkin skin;
+	GUIStyle boxStyle;
+	Texture2D bgTexture;
 	
 	public JBCStyle()
 	{
-		skin = GUISkin.CreateInstance<GUISkin>();
-		var tex = new Texture2D(1, 1);
-		tex.SetPixel(0, 0, new Color(0f, 0f, 0f, 0.8f));
-		tex.Apply();
-		skin.box.normal.background = tex;
+		bgTexture = new Texture2D(1, 1);
+		bgTexture.SetPixel(0, 0, new Color(0f, 0f, 0f, 0.8f));
+		bgTexture.Apply();
+		
+		boxStyle = new GUIStyle();
+		boxStyle.normal.background = bgTexture;
+		boxStyle.normal.textColor = Color.white;
+		
 		
 		levelToStyle = new Dictionary<ConsoleLevel, GUIStyle>();
 		
@@ -46,9 +50,9 @@ public class JBCStyle
 		return levelToStyle[ConsoleLevel.Debug].lineHeight;
 	}
 	
-	public GUISkin Skin
+	public GUIStyle BoxStyle
 	{
-		get { return skin; }
+		get { return boxStyle; }
 	}
 	
 	public GUIStyle GetStyleForLogLevel(ConsoleLevel level)

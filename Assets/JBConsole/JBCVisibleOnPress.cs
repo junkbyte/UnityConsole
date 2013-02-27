@@ -19,13 +19,17 @@ public class JBCVisibleOnPress : MonoBehaviour {
 	
 	void Update ()
 	{
-		if(Input.GetMouseButton(0) && pressArea.Contains(Input.mousePosition))
+		if(Input.GetMouseButton(0))
 		{
-			secsPressed += Time.deltaTime;
-			if(secsPressed >= secsRequiredToPress)
+			pressArea.y = Screen.height - pressArea.height;
+			if(pressArea.Contains(Input.mousePosition))
 			{
-				console.visible = true;
-				secsPressed = 0;
+				secsPressed += Time.deltaTime;
+				if(secsPressed >= secsRequiredToPress)
+				{
+					console.visible = true;
+					secsPressed = 0;
+				}
 			}
 		}
 		else

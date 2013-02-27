@@ -142,7 +142,7 @@ public class JBLogger
         instance.AddCh(ConsoleLevel.Fatal, channel, GetStringOf(objects));
     }
 	
-	static string GetStringOf(object[] objects)
+	public static string GetStringOf(object[] objects)
 	{
 		StringBuilder strb = new StringBuilder();
 		int end = objects.Length - 1;
@@ -150,12 +150,16 @@ public class JBLogger
 		for(int i = 0; i <= end; i++)
 		{
 			obj = objects.GetValue(i);
-			Type type = obj.GetType();
 			
-			if(type.IsPrimitive)
+			if(obj != null)
 			{
-				obj = "<i>"+ obj + "</i>";
+				Type type = obj.GetType();
+				if(type.IsPrimitive)
+				{
+					obj = "<i><b>"+ obj + "</b></i>";
+				}
 			}
+			
 			/*
 			// TODO: read object type and print more info about it...
 			
@@ -174,10 +178,10 @@ public class JBLogger
 		return strb.ToString();
 	}
 	
-    public static void AddCh(ConsoleLevel level, string channel, params object[] objects)
+    public void AddCh(ConsoleLevel level, string channel, object[] objects)
     {
-        instance.AddCh(level, channel, GetStringOf(objects));
-    }
+		AddCh(level, channel, GetStringOf(objects));
+	}
 	
     public void AddCh(ConsoleLevel level, string channel, string message)
     {
@@ -190,6 +194,7 @@ public class JBLogger
 				Changed();
 				return;
 			}
+			if(channel == null) channel = defaultChannelName;
 			StackTrace stackTrace = new StackTrace(); 
 			StackFrame[] stackFrames = stackTrace.GetFrames();
 	        logs.Add(new ConsoleLog(level, channel, message, stackFrames));

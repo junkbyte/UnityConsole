@@ -65,12 +65,16 @@ public class JBConsole : MonoBehaviour
 		
 	public JBConsole()
 	{
-		style = new JBCStyle();
+		
 	}
 	
 	void Awake ()
 	{
 		if(_instance == null) _instance = this;
+
+        style = new JBCStyle();
+		
+		DontDestroyOnLoad(gameObject);
 		
 		logger = JBLogger.instance;
 		
@@ -256,19 +260,29 @@ public class JBConsole : MonoBehaviour
 	void OnGUI ()
 	{
         if (!visible) return;
-		/*
-        float screenScale = Screen.width / 320f;
-	    Matrix4x4 scaledMatrix = Matrix4x4.Scale(Vector3.one * screenScale);
-	    GUI.matrix = scaledMatrix;
-         */
-		DrawGUI(Screen.width, Screen.height);
+		
+        var matrix = GUI.matrix; // save current matrix
+        var depth = GUI.depth;
+		GUI.depth = int.MaxValue - 10;
+		
+		float scale = 1;
+        var dpi = Screen.dpi;
+        if (dpi > 0)
+        {
+            scale = dpi / 160;
+            GUI.matrix = Matrix4x4.Scale(Vector3.one * scale);
+        }
+		DrawGUI(Mathf.Floor(Screen.width / scale), Mathf.Floor(Screen.height / scale));
+
+        GUI.depth = depth;
+        GUI.matrix = matrix;
 	}
 	
 	public void DrawGUI(float width, float height)
 	{
         GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
 
-        GUILayout.BeginVertical(style.Skin.box);
+        GUILayout.BeginVertical(style.BoxStyle);
 
         //GUILayout.BeginHorizontal();
 		//GUILayout.FlexibleSpace();
@@ -343,7 +357,7 @@ public class JBConsole : MonoBehaviour
 			bool atbottom = maxscroll <= 0 || scrollPosition.y > maxscroll - 4; // where 4 = scroll view's skin bound size?
 			if(!autoScrolling && wasForcedBottom)
 			{
-				scrollPosition.y = maxscroll - 1;
+				scrollPosition.y = maxscroll - 3;
 			}
 			else if(autoScrolling != atbottom)
 			{
@@ -368,7 +382,9 @@ public class JBConsole : MonoBehaviour
 		
 		if(GUI.tooltip.Length > 0)
 		{
-			//GUI.Label(new Rect(0, Screen.height - Input.mousePosition.y + 10, Screen.width, 100), GUI.tooltip);
+			//GUIContent content = new GUIContent(GUI.tooltip);
+			//float tooltiph = style.BoxStyle.CalcHeight(content, width);
+			//GUI.Label(new Rect(0, Screen.height - Input.mousePosition.y + 16, width, tooltiph), GUI.tooltip, style.BoxStyle);
 		}
 	}
 	
