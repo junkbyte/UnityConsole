@@ -35,7 +35,7 @@ public class JBConsole : MonoBehaviour
 	private JBLogger logger;
 	private JBCStyle style;
 
-    public bool visible = false;
+    public bool visible = true;
     public int menuItemWidth = 100;
 	
     string[] levels;

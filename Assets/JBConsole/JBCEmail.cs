@@ -39,7 +39,6 @@ public class JBCEmail : MonoBehaviour
         var to = string.IsNullOrEmpty(To) ? "" : To;
         body = "mailto:" + to + "?" + URLPart("subject=", Subject) + URLPart("&body=", body);
         Application.OpenURL(body);
-        Debug.Log(body);
     }
 
     string URLPart(string prefix, string body)
