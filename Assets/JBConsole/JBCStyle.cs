@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 public class JBCStyle
 {
+    private const int MENU_FONT_SIZE = 14;
 	
 	Dictionary<ConsoleLevel, GUIStyle> levelToStyle;
-	
-	GUIStyle boxStyle;
+
+    GUIStyle boxStyle;
+    GUIStyle menuStyle;
 	Texture2D bgTexture;
 	
 	public JBCStyle()
@@ -18,8 +20,13 @@ public class JBCStyle
 		
 		boxStyle = new GUIStyle();
 		boxStyle.normal.background = bgTexture;
-		boxStyle.normal.textColor = Color.white;
-		
+        boxStyle.normal.textColor = Color.white;
+
+        menuStyle = new GUIStyle(GUI.skin.button);
+        menuStyle.normal.textColor = Color.white;
+        menuStyle.fontSize = MENU_FONT_SIZE;
+        menuStyle.fontStyle = FontStyle.Bold;
+        menuStyle.normal.textColor = new Color(0.8f, 0.6f, 0f);
 		
 		levelToStyle = new Dictionary<ConsoleLevel, GUIStyle>();
 		
@@ -54,6 +61,16 @@ public class JBCStyle
 	{
 		get { return boxStyle; }
 	}
+
+    public GUIStyle MenuStyle
+    {
+        get { return menuStyle; }
+    }
+
+    public void SetScale(float scale)
+    {
+        menuStyle.fontSize = (int)(MENU_FONT_SIZE * scale);
+    }
 	
 	public GUIStyle GetStyleForLogLevel(ConsoleLevel level)
 	{
