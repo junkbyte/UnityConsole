@@ -46,7 +46,7 @@ public class ConsoleTest : MonoBehaviour {
 			if(delay >= 0.25f)
 			{
 				delay = 0;
-				JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
+				//JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
 				count ++;
 			}
             

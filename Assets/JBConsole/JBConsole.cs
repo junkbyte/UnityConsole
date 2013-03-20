@@ -2,11 +2,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
-public delegate void MenuHandler();
+public delegate void JBConsoleMenuHandler();
 
 public class JBConsole : MonoBehaviour
 {
-	
+    delegate void SubMenuHandler(int index);
+
 	private static JBConsole _instance;
 	
 	public static JBConsole Start()
@@ -37,10 +38,11 @@ public class JBConsole : MonoBehaviour
 
     public bool visible = true;
     public int menuItemWidth = 100;
+    public int BaseDPI = 160;
 	
     string[] levels;
     string[] topMenu;
-    Dictionary<int, MenuHandler> customMenuHandlers;
+    Dictionary<int, JBConsoleMenuHandler> customMenuHandlers;
 
     ConsoleLevel viewingLevel = ConsoleLevel.Debug;
     string[] viewingChannels;
@@ -81,7 +83,7 @@ public class JBConsole : MonoBehaviour
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
 
         customMenus = new string[0];
-        customMenuHandlers = new Dictionary<int, MenuHandler>();
+        customMenuHandlers = new Dictionary<int, JBConsoleMenuHandler>();
 	}
 	
 	void Update ()
@@ -93,7 +95,7 @@ public class JBConsole : MonoBehaviour
 		}
 	}
 	
-    public static void AddMenu(string name, MenuHandler callback)
+    public static void AddMenu(string name, JBConsoleMenuHandler callback)
 	{
 		if(!exists) return;
 		instance.AddCustomMenu(name, callback);
@@ -105,8 +107,7 @@ public class JBConsole : MonoBehaviour
 		instance.RemoveCustomMenu(name);
 	}
 
-	
-    public void AddCustomMenu(string name, MenuHandler callback)
+    public void AddCustomMenu(string name, JBConsoleMenuHandler callback)
     {
 		RemoveMenu(name);
         JBConsoleUtils.AddToStringArray(ref customMenus, name);
@@ -247,31 +248,21 @@ public class JBConsole : MonoBehaviour
 	{
         if (!visible) return;
 
-        if (style == null) style = new JBCStyle();
-
-        var matrix = GUI.matrix; // save current matrix
         var depth = GUI.depth;
 		GUI.depth = int.MaxValue - 10;
 		
 		float scale = 1;
         var dpi = Screen.dpi;
-        if (dpi > 0)
-        {
-            scale = dpi / 160;
-        }
+        if (dpi > 0 && BaseDPI > 0) scale = dpi / BaseDPI;
 
         DrawGUI(Screen.width, Screen.height, scale);
 
         GUI.depth = depth;
-        GUI.matrix = matrix;
 	}
 	
 	public void DrawGUI(float width, float height, float scale = 1)
     {
-	    if (style == null)
-	    {
-	        return;
-	    }
+        if (style == null) style = new JBCStyle();
 
 	    GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
 
@@ -452,8 +443,6 @@ public class JBConsole : MonoBehaviour
 		cachedLogs = null;
 	}
 }
-
-delegate void SubMenuHandler(int index);
 
 public enum ConsoleMenu
 {
