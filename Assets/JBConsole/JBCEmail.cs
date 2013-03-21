@@ -57,7 +57,7 @@ public class JBCEmail : MonoBehaviour
 
     public static JBCEmail RegisterToConsole(string to = null, string subject = null)
 	{
-		if(JBConsole.exists)
+		if(JBConsole.Exists)
 		{
             var jbcemail = JBConsole.instance.gameObject.AddComponent<JBCEmail>();
 		    if (string.IsNullOrEmpty(to) == false) jbcemail.To = to;

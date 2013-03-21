@@ -22,7 +22,7 @@ public class JBCToggleOnKey : MonoBehaviour {
 	
 	public static JBCToggleOnKey RegisterToConsole()
 	{
-		if(JBConsole.exists)	
+		if(JBConsole.Exists)	
 		{
 			return JBConsole.instance.gameObject.AddComponent<JBCToggleOnKey>();
 		}

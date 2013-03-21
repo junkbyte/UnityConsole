@@ -40,7 +40,7 @@ public class JBCVisibleOnPress : MonoBehaviour {
 	
 	public static JBCVisibleOnPress RegisterToConsole()
 	{
-		if(JBConsole.exists)	
+		if(JBConsole.Exists)	
 		{
 			return JBConsole.instance.gameObject.AddComponent<JBCVisibleOnPress>();
 		}
