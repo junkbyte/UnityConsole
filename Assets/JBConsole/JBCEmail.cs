@@ -3,6 +3,7 @@ using UnityEngine;
 
 public delegate string JBCEmailFormatter(ConsoleLog log);
 
+[RequireComponent(typeof(JBConsole))]
 public class JBCEmail : MonoBehaviour
 {
 	JBConsole console;
@@ -13,7 +14,7 @@ public class JBCEmail : MonoBehaviour
     public JBCEmailFormatter Formatter;
 
 	
-	void Start ()
+	void Awake ()
 	{
         if (Formatter == null)
         {

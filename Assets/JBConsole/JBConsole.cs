@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.IO;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
@@ -388,7 +390,17 @@ public class JBConsole : MonoBehaviour
         {
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
             GUILayout.Label(focusedLog.message, style.GetStyleForLogLevel(focusedLog.level), maxwidthscreen);
-            GUILayout.Label(focusedLog.stack, maxwidthscreen);
+
+
+            string stack = "";
+            int linenum;
+            foreach (StackFrame stackFrame in focusedLog.stackTrace.GetFrames())
+            {
+                linenum = stackFrame.GetFileLineNumber();
+                var filename = Path.GetFileNameWithoutExtension(stackFrame.GetFileName());
+                stack += filename + ":\t" + stackFrame.GetMethod() + (linenum > 0 ? " @ " + linenum : "") + "\n";
+            }
+            GUILayout.Label(stack, maxwidthscreen);
 
             if (focusedLog.references != null)
             {

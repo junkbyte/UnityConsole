@@ -1,6 +1,6 @@
 using UnityEngine;
-using System.Collections;
 
+[RequireComponent(typeof(JBConsole))]
 public class JBCToggleOnKey : MonoBehaviour {
 	
 	public KeyCode key = KeyCode.BackQuote;

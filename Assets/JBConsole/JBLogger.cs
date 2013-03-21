@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Diagnostics;
 using System.Text;
 using System.Collections;
@@ -224,15 +223,7 @@ public class JBLogger
             }
             if (log.channel == null) log.channel = defaultChannelName;
 
-            StackTrace stackTrace = new StackTrace();
-            string stack = "";
-            int linenum;
-            foreach (StackFrame stackFrame in stackTrace.GetFrames())
-            {
-                linenum = stackFrame.GetFileLineNumber();
-                stack += stackFrame.GetFileName() + ": " + stackFrame.GetMethod() + (linenum > 0 ? " @ " + linenum : "") + "\n";
-            }
-            log.stack = stack;
+            log.stackTrace = new StackTrace(3, true);
 
             logs.Add(log);
             if (!channels.Contains(log.channel))
@@ -268,7 +259,7 @@ public class ConsoleLog
     public ConsoleLevel level;
     public string channel;
     public string message;
-    public string stack;
+    public StackTrace stackTrace;
 	public int repeats;
     public List<WeakReference> references;
 

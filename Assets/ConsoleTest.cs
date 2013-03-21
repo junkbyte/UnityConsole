@@ -1,14 +1,16 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 public class ConsoleTest : MonoBehaviour {
 
     JBConsole console;
 
-    float time;
 	float delay;
 	int count;
+
+    private bool spam;
 
 	void Start ()
     {
@@ -39,19 +41,26 @@ public class ConsoleTest : MonoBehaviour {
         JBLogger.Info(list);
         var arr = list.ToArray();
         JBLogger.Info("arr:", arr);
+
+        JBConsole.AddMenu("1", OnSpamMenuClicked);
+        JBConsole.AddMenu("2", OnSpamMenuClicked);
+        JBConsole.AddMenu("3", OnSpamMenuClicked);
 	}
-	
-	
+
+    private void OnSpamMenuClicked()
+    {
+        spam = !spam;
+    }
+
+
     void Update()
     {
-        time += Time.deltaTime;
-        //if (time < 20f)
         {
 			delay += Time.deltaTime;
-			if(delay >= 0.25f)
+            if (delay >= 0.25f && spam)
 			{
 				delay = 0;
-				//JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
+				JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
 				count ++;
 			}
             
