@@ -257,15 +257,12 @@ public class JBConsole : MonoBehaviour
 
         GUILayout.BeginVertical(style.BoxStyle);
 
-        //GUILayout.BeginHorizontal();
-        //GUILayout.FlexibleSpace();
         int selection = GUILayout.Toolbar(-1, currentTopMenu, style.MenuStyle, GUILayout.MinWidth(280 * scale), GUILayout.MaxWidth(380 * scale));
         if (selection >= 0)
         {
             Defocus();
             OnMenuSelection(selection);
         }
-		//GUILayout.EndHorizontal();
 
         if (currentSubMenu != null)
         {
@@ -290,6 +287,7 @@ public class JBConsole : MonoBehaviour
             string newTerm = GUILayout.TextField(searchTerm);
 			if(newTerm != searchTerm)
 			{
+                Defocus();
             	searchTerm = newTerm.ToLower();
 				clearCache();
 			}
@@ -411,9 +409,12 @@ public class JBConsole : MonoBehaviour
 
     private void Defocus()
     {
-        autoScrolling = true;
-        scrollPosition.y = float.MaxValue;
-        focusedLog = null;
+        if (focusedLog != null)
+        {
+            autoScrolling = true;
+            scrollPosition.y = float.MaxValue;
+            focusedLog = null;
+        }
     }
 
     void EnsureScrollPosition()
