@@ -20,20 +20,20 @@ public class JBConsole : MonoBehaviour
 
     public static JBConsole instance { get; private set; }
 
-    public static bool exists
+    public static bool Exists
 	{
 		get { return instance != null; }
     }
 
     public static void AddMenu(string name, JBConsoleMenuHandler callback)
     {
-        if (!exists) return;
+        if (!Exists) return;
         instance.AddCustomMenu(name, callback);
     }
 
     public static void RemoveMenu(string name)
     {
-        if (!exists) return;
+        if (!Exists) return;
         instance.RemoveCustomMenu(name);
     }
 
@@ -305,20 +305,6 @@ public class JBConsole : MonoBehaviour
         }
 
 	    GUILayout.EndVertical();
-
-		
-		if(GUI.tooltip.Length > 0)
-        {
-            if (Event.current.type == EventType.MouseUp)
-            {
-
-            }
-			/*
-            GUIContent content = new GUIContent(GUI.tooltip);
-			float tooltiph = style.BoxStyle.CalcHeight(content, width);
-			GUI.Label(new Rect(0, Screen.height - Input.mousePosition.y + 16, width, tooltiph), GUI.tooltip, style.BoxStyle);
-            */
-		}
 	}
 
     private void DrawLogScroll(float width, float height)
