@@ -42,9 +42,7 @@ public class ConsoleTest : MonoBehaviour {
         var arr = list.ToArray();
         JBLogger.Info("arr:", arr);
 
-        JBConsole.AddMenu("1", OnSpamMenuClicked);
-        JBConsole.AddMenu("2", OnSpamMenuClicked);
-        JBConsole.AddMenu("3", OnSpamMenuClicked);
+        JBConsole.AddMenu("spam", OnSpamMenuClicked);
 	}
 
     private void OnSpamMenuClicked()
