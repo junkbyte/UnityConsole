@@ -389,6 +389,19 @@ public class JBConsole : MonoBehaviour
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
             GUILayout.Label(focusedLog.message, style.GetStyleForLogLevel(focusedLog.level), maxwidthscreen);
             GUILayout.Label(focusedLog.stack, maxwidthscreen);
+
+            if (focusedLog.references != null)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("References: ");
+                foreach (var weakref in focusedLog.references)
+                {
+                    if (weakref.IsAlive) GUILayout.Label(weakref.Target.ToString());
+                    else GUILayout.Label("(dead link)");
+                }
+                GUILayout.EndHorizontal();
+            }
+            
             GUILayout.EndScrollView();
         }
     }

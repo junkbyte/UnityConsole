@@ -19,21 +19,26 @@ public class ConsoleTest : MonoBehaviour {
 	    JBCEmail.RegisterToConsole("luaye@junkbyte.com", "Test subject");
 		
         JBLogger.Info("Test Info");
-        JBLogger.Debug(ConsoleLevel.Debug, "Test", "test Debug");
-        JBLogger.Debug(ConsoleLevel.Debug, "Test", "test Debug repeat");
-        JBLogger.Debug(ConsoleLevel.Debug, "Test", "test Debug repeat");
-        JBLogger.Debug(ConsoleLevel.Debug, "Test", "test Debug repeat");
-        JBLogger.Debug(ConsoleLevel.Debug, "Test", "test Debug repeat");
-        JBLogger.Warn(ConsoleLevel.Warn, "Test", "Warn");
-        JBLogger.Warn(ConsoleLevel.Warn, "Test", "Warn");
-        JBLogger.Warn(ConsoleLevel.Warn, "Test", "Warn Abcd and numbers:", 1, 2, 3, 4, 5);
-        JBLogger.Warn(ConsoleLevel.Warn, "Test", "Warn <b>BOLD HERE</b>");
-        JBLogger.Error(ConsoleLevel.Error, "Test", "Error");
+        JBLogger.Debug("Test", "test Debug");
+        JBLogger.Debug("Test", "test Debug repeat");
+        JBLogger.Debug("Test", "test Debug repeat");
+        JBLogger.Debug("Test", "test Debug repeat");
+        JBLogger.Debug("Test", "test Debug repeat");
+        JBLogger.Warn("Test", "Warn");
+        JBLogger.Warn("Test", "Warn");
+        JBLogger.Warn("Test", "Warn Abcd and numbers:", 1, 2, 3, 4, 5);
+        JBLogger.Warn("Test", "Warn <b>BOLD HERE</b>");
+        JBLogger.Error("Test", "Error");
         JBLogger.InfoCh("myChannel", "Test info on myChannel");
         JBLogger.WarnCh("myChannel 2", "Test warn on myChannel 2");
         JBLogger.FatalCh("myChannel 2", "Test fatal on myChannel 2");
-		
-		JBLogger.Info (new List<string>(){"bla bla", "and blaaa"});
+
+        JBLogger.Info("Console: ", JBConsole.instance);
+
+	    var list = new List<string>() {"bla bla", "and blaaa"};
+        JBLogger.Info(list);
+        var arr = list.ToArray();
+        JBLogger.Info("arr:", arr);
 	}
 	
 	
@@ -46,7 +51,7 @@ public class ConsoleTest : MonoBehaviour {
 			if(delay >= 0.25f)
 			{
 				delay = 0;
-				JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
+				//JBLogger.Log(ConsoleLevel.Info, "Test " + count + " - " + Random.value);
 				count ++;
 			}
             
