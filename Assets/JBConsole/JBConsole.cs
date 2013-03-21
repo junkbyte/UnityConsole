@@ -42,7 +42,7 @@ public class JBConsole : MonoBehaviour
 	private JBCStyle style;
 
     public bool visible = true;
-    public int menuItemWidth = 100;
+    public int menuItemWidth = 110;
     public int BaseDPI = 160;
 	
     string[] levels;
@@ -257,7 +257,7 @@ public class JBConsole : MonoBehaviour
 
         GUILayout.BeginVertical(style.BoxStyle);
 
-        int selection = GUILayout.Toolbar(-1, currentTopMenu, style.MenuStyle, GUILayout.MinWidth(280 * scale), GUILayout.MaxWidth(380 * scale));
+        int selection = GUILayout.Toolbar(-1, currentTopMenu, style.MenuStyle, GUILayout.MinWidth(320 * scale), GUILayout.MaxWidth(480 * scale));
         if (selection >= 0)
         {
             Defocus();
