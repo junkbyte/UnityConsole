@@ -159,7 +159,7 @@ public class JBLogger
 				}
                 else if (obj is string)
                 {
-                    obj = obj;
+                    //obj = obj;
                 }
 				else
                 {

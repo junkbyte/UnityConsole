@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System;
 
 public delegate void JBConsoleMenuHandler();
-
 public delegate void JBCDrawBodyHandler(float width, float height, float scale = 1);
 public delegate void JBCLogSelectedHandler(ConsoleLog log);
 
