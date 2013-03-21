@@ -1,10 +1,11 @@
-using System.Diagnostics;
-using System.IO;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
 
 public delegate void JBConsoleMenuHandler();
+
+public delegate void JBCDrawBodyHandler(float width, float height, float scale = 1);
+public delegate void JBCLogSelectedHandler(ConsoleLog log);
 
 public class JBConsole : MonoBehaviour
 {
@@ -41,11 +42,14 @@ public class JBConsole : MonoBehaviour
 
 	
 	private JBLogger logger;
-	private JBCStyle style;
+    public JBCStyle style { get; private set; }
 
     public bool visible = true;
     public int menuItemWidth = 110;
     public int BaseDPI = 160;
+
+    JBCDrawBodyHandler DrawGUIBodyHandler;
+    public JBCLogSelectedHandler OnLogSelectedHandler;
 	
     string[] levels;
     string[] topMenu;
@@ -71,14 +75,12 @@ public class JBConsole : MonoBehaviour
     Vector2 scrollPosition;
 	
 	int stateHash;
-
-    private ConsoleLog focusedLog;
-
 	
 	void Awake ()
 	{
 		if(instance == null) instance = this;
 
+	    gameObject.AddComponent<JBCInspector>();
 		
 		DontDestroyOnLoad(gameObject);
 		
@@ -297,13 +299,13 @@ public class JBConsole : MonoBehaviour
             GUI.FocusControl("SearchTF");
         }
 
-        if (focusedLog != null)
+        if (DrawGUIBodyHandler == null)
         {
-            DrawFocusedLog(width, height);
+            DrawLogScroll(width, height);
         }
         else
         {
-            DrawLogScroll(width, height);
+            DrawGUIBodyHandler(width, height, scale);
         }
 
 	    GUILayout.EndVertical();
@@ -339,9 +341,9 @@ public class JBConsole : MonoBehaviour
             clickedLog = PrintCachedLogs(maxwidthscreen);
         }
 
-        if (clickedLog != null)
+        if (clickedLog != null && OnLogSelectedHandler != null)
         {
-            focusedLog = clickedLog;
+            OnLogSelectedHandler(clickedLog);
         }
 
         Rect lastContentRect = GUILayoutUtility.GetLastRect();
@@ -378,53 +380,18 @@ public class JBConsole : MonoBehaviour
         }
     }
 
-    private void DrawFocusedLog(float width, float height)
+    public void Focus(JBCDrawBodyHandler drawBodyHandler)
     {
-        GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
-
-        if (GUILayout.Button("Back", style.MenuStyle))
-        {
-            Defocus();
-        }
-        else
-        {
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
-            GUILayout.Label(focusedLog.message, style.GetStyleForLogLevel(focusedLog.level), maxwidthscreen);
-
-
-            string stack = "";
-            int linenum;
-            foreach (StackFrame stackFrame in focusedLog.stackTrace.GetFrames())
-            {
-                linenum = stackFrame.GetFileLineNumber();
-                var filename = Path.GetFileNameWithoutExtension(stackFrame.GetFileName());
-                stack += filename + ":\t" + stackFrame.GetMethod() + (linenum > 0 ? " @ " + linenum : "") + "\n";
-            }
-            GUILayout.Label(stack, maxwidthscreen);
-
-            if (focusedLog.references != null)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("References: ");
-                foreach (var weakref in focusedLog.references)
-                {
-                    if (weakref.IsAlive) GUILayout.Label(weakref.Target.ToString());
-                    else GUILayout.Label("(dead link)");
-                }
-                GUILayout.EndHorizontal();
-            }
-            
-            GUILayout.EndScrollView();
-        }
+        DrawGUIBodyHandler = drawBodyHandler;
     }
 
-    private void Defocus()
+    public void Defocus()
     {
-        if (focusedLog != null)
+        if(DrawGUIBodyHandler != null)
         {
             autoScrolling = true;
             scrollPosition.y = float.MaxValue;
-            focusedLog = null;
+            DrawGUIBodyHandler = null;
         }
     }
 
@@ -500,7 +467,8 @@ public class JBConsole : MonoBehaviour
 		}
 	}
 	
-	public void clearCache(){
+	void clearCache()
+    {
 		cachedLogs = null;
 	}
 }
