@@ -52,7 +52,7 @@ public class JBCEmail : MonoBehaviour
 
     private string DefaultFormatter(ConsoleLog log)
     {
-        return log.channel + " " + log.level + " " + log.content.text + "\n";
+        return log.channel + " " + log.level + " " + log.message + "\n";
     }
 
     public static JBCEmail RegisterToConsole(string to = null, string subject = null)

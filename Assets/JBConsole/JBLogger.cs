@@ -188,16 +188,24 @@ public class JBLogger
 		lock(this)
 		{
 			int count = logs.Count;
-			if(count > 0 && logs[count-1].content != null && logs[count-1].content.text == message)
+			if(count > 0 &&  logs[count-1].message == message)
 			{
 				logs[count - 1].repeats++;
 				Changed();
 				return;
 			}
 			if(channel == null) channel = defaultChannelName;
-			StackTrace stackTrace = new StackTrace(); 
-			StackFrame[] stackFrames = stackTrace.GetFrames();
-	        logs.Add(new ConsoleLog(level, channel, message, stackFrames));
+			StackTrace stackTrace = new StackTrace();
+
+		    string stack = "";
+		    int linenum;
+		    foreach (StackFrame stackFrame in stackTrace.GetFrames())
+		    {
+		        linenum = stackFrame.GetFileLineNumber();
+                stack += stackFrame.GetFileName() + ": " + stackFrame.GetMethod().ToString() + (linenum > 0 ? " @ " + linenum : "") + "\n";
+		    }
+
+            logs.Add(new ConsoleLog(level, channel, message, stack));
 	        if (!channels.Contains(channel))
 	        {
 				channels.Add(channel);
@@ -230,19 +238,15 @@ public class ConsoleLog
 {
     public ConsoleLevel level;
     public string channel;
-    public GUIContent content;
+    public string message;
+    public string stack;
 	public int repeats;
 
-    public ConsoleLog(ConsoleLevel level_, string channel_, string message, StackFrame[] stackFrames)
+    public ConsoleLog(ConsoleLevel level_, string channel_, string message, string stack)
     {
         level = level_;
         channel = channel_;
-		
-		string stack = "";
-		foreach (StackFrame stackFrame in stackFrames)
-		{
-			stack += stackFrame.GetFileName() + ": " + stackFrame.GetMethod().ToString() + " @ " +stackFrame.GetFileLineNumber() + "\n";
-		}
-        content = new GUIContent(message, stack);
+        this.message = message;
+        this.stack = stack;
     }
 }

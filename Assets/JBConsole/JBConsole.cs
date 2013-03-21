@@ -8,30 +8,35 @@ public class JBConsole : MonoBehaviour
 {
     delegate void SubMenuHandler(int index);
 
-	private static JBConsole _instance;
-	
-	public static JBConsole Start()
+    public static JBConsole Start()
 	{
-		if(_instance == null)
+		if(instance == null)
 		{
-			GameObject go = new GameObject("JBConsole");
-			_instance = go.AddComponent<JBConsole>();
+			var go = new GameObject("JBConsole");
+			instance = go.AddComponent<JBConsole>();
 		}
-		return _instance;
+		return instance;
 	}
-	
-	public static JBConsole instance
+
+    public static JBConsole instance { get; private set; }
+
+    public static bool exists
 	{
-		get
-		{
-			return _instance;
-		}
-	}
-	
-	public static bool exists
-	{
-		get { return _instance != null; }
-	}
+		get { return instance != null; }
+    }
+
+    public static void AddMenu(string name, JBConsoleMenuHandler callback)
+    {
+        if (!exists) return;
+        instance.AddCustomMenu(name, callback);
+    }
+
+    public static void RemoveMenu(string name)
+    {
+        if (!exists) return;
+        instance.RemoveCustomMenu(name);
+    }
+
 	
 	private JBLogger logger;
 	private JBCStyle style;
@@ -64,15 +69,13 @@ public class JBConsole : MonoBehaviour
     Vector2 scrollPosition;
 	
 	int stateHash;
-		
-	public JBConsole()
-	{
-		
-	}
+
+    private ConsoleLog focusedLog;
+
 	
 	void Awake ()
 	{
-		if(_instance == null) _instance = this;
+		if(instance == null) instance = this;
 
 		
 		DontDestroyOnLoad(gameObject);
@@ -93,18 +96,6 @@ public class JBConsole : MonoBehaviour
 			stateHash = logger.stateHash;
 			clearCache();
 		}
-	}
-	
-    public static void AddMenu(string name, JBConsoleMenuHandler callback)
-	{
-		if(!exists) return;
-		instance.AddCustomMenu(name, callback);
-	}
-	
-    public static void RemoveMenu(string name)
-	{
-		if(!exists) return;
-		instance.RemoveCustomMenu(name);
 	}
 
     public void AddCustomMenu(string name, JBConsoleMenuHandler callback)
@@ -264,9 +255,6 @@ public class JBConsole : MonoBehaviour
     {
         if (style == null) style = new JBCStyle();
 
-	    GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
-
-
         GUILayout.BeginVertical(style.BoxStyle);
 
         //GUILayout.BeginHorizontal();
@@ -274,6 +262,7 @@ public class JBConsole : MonoBehaviour
         int selection = GUILayout.Toolbar(-1, currentTopMenu, style.MenuStyle, GUILayout.MinWidth(280 * scale), GUILayout.MaxWidth(380 * scale));
         if (selection >= 0)
         {
+            Defocus();
             OnMenuSelection(selection);
         }
 		//GUILayout.EndHorizontal();
@@ -289,6 +278,7 @@ public class JBConsole : MonoBehaviour
                 selection = GUILayout.SelectionGrid(-1, currentSubMenu, (int)(width / (menuItemWidth * scale)), style.MenuStyle);
 	            if (selection >= 0 && subMenuHandler != null)
 	            {
+	                Defocus();
 	                subMenuHandler(selection);
 	            }
 			}
@@ -306,74 +296,127 @@ public class JBConsole : MonoBehaviour
             
             GUI.FocusControl("SearchTF");
         }
-		
-		bool wasForcedBottom = scrollPosition.y == float.MaxValue;
-		
-		if(autoScrolling)
-		{
-			if(cachedLogs == null && Event.current.type == EventType.Layout)
-			{
-				scrollPosition.y = float.MaxValue;
-			}
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
-			if (cachedLogs == null)
-	        {
-	            CacheBottomOfLogs(width, height);
-	        }
-			PrintCachedLogs(maxwidthscreen);
-		}
-        else
-		{
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
-			if (cachedLogs == null)
-	        {
-	            CacheAllOfLogs();
-	        }
-			PrintCachedLogs(maxwidthscreen);
-		}
-		Rect lastContentRect = GUILayoutUtility.GetLastRect();
-		GUILayout.EndScrollView();
-		
-		Rect scrollViewRect = GUILayoutUtility.GetLastRect();
-		if(Event.current.type == EventType.Repaint)
-		{
-			float maxscroll = lastContentRect.y + lastContentRect.height - scrollViewRect.height;
-			
-			bool atbottom = maxscroll <= 0 || scrollPosition.y > maxscroll - 4; // where 4 = scroll view's skin bound size?
-			if(!autoScrolling && wasForcedBottom)
-			{
-				scrollPosition.y = maxscroll - 3;
-			}
-			else if(autoScrolling != atbottom)
-			{
-				autoScrolling = atbottom;
-				scrollPosition.y = float.MaxValue;
-				clearCache();
-			}
-		}
-		
-        GUILayout.EndVertical();
-		
-		if(!autoScrolling)
-		{
-			autoscrolltogglerect.x = width - autoscrolltogglerect.width;
-			autoscrolltogglerect.y = height - autoscrolltogglerect.height;
 
-			if(GUI.Button(autoscrolltogglerect, "Scroll to bottom"))
-			{
-				autoScrolling = true;
-			}
-		}
+        if (focusedLog != null)
+        {
+            DrawFocusedLog(width, height);
+        }
+        else
+        {
+            DrawLogScroll(width, height);
+        }
+
+	    GUILayout.EndVertical();
+
 		
 		if(GUI.tooltip.Length > 0)
-		{
-			GUIContent content = new GUIContent(GUI.tooltip);
+        {
+            if (Event.current.type == EventType.MouseUp)
+            {
+
+            }
+			/*
+            GUIContent content = new GUIContent(GUI.tooltip);
 			float tooltiph = style.BoxStyle.CalcHeight(content, width);
 			GUI.Label(new Rect(0, Screen.height - Input.mousePosition.y + 16, width, tooltiph), GUI.tooltip, style.BoxStyle);
+            */
 		}
 	}
-	
-	void EnsureScrollPosition()
+
+    private void DrawLogScroll(float width, float height)
+    {
+        GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
+
+        bool wasForcedBottom = scrollPosition.y == float.MaxValue;
+
+        ConsoleLog clickedLog;
+        if (autoScrolling)
+        {
+            if (cachedLogs == null && Event.current.type == EventType.Layout)
+            {
+                scrollPosition.y = float.MaxValue;
+            }
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+            if (cachedLogs == null)
+            {
+                CacheBottomOfLogs(width, height);
+            }
+            clickedLog = PrintCachedLogs(maxwidthscreen);
+        }
+        else
+        {
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+            if (cachedLogs == null)
+            {
+                CacheAllOfLogs();
+            }
+            clickedLog = PrintCachedLogs(maxwidthscreen);
+        }
+
+        if (clickedLog != null)
+        {
+            focusedLog = clickedLog;
+        }
+
+        Rect lastContentRect = GUILayoutUtility.GetLastRect();
+        GUILayout.EndScrollView();
+
+        Rect scrollViewRect = GUILayoutUtility.GetLastRect();
+        if (Event.current.type == EventType.Repaint)
+        {
+            float maxscroll = lastContentRect.y + lastContentRect.height - scrollViewRect.height;
+
+            bool atbottom = maxscroll <= 0 || scrollPosition.y > maxscroll - 4; // where 4 = scroll view's skin bound size?
+            if (!autoScrolling && wasForcedBottom)
+            {
+                scrollPosition.y = maxscroll - 3;
+            }
+            else if (autoScrolling != atbottom)
+            {
+                autoScrolling = atbottom;
+                scrollPosition.y = float.MaxValue;
+                clearCache();
+            }
+        }
+
+
+        if (!autoScrolling)
+        {
+            autoscrolltogglerect.x = width - autoscrolltogglerect.width;
+            autoscrolltogglerect.y = height - autoscrolltogglerect.height;
+
+            if (GUI.Button(autoscrolltogglerect, "Scroll to bottom"))
+            {
+                autoScrolling = true;
+            }
+        }
+    }
+
+    private void DrawFocusedLog(float width, float height)
+    {
+        GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
+
+        if (GUILayout.Button("Back", style.MenuStyle))
+        {
+            Defocus();
+        }
+        else
+        {
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+            GUILayout.Label(focusedLog.message, style.GetStyleForLogLevel(focusedLog.level), maxwidthscreen);
+            GUILayout.Label(focusedLog.stack, maxwidthscreen);
+            GUILayout.EndScrollView();
+        }
+    }
+
+    private void Defocus()
+    {
+        autoScrolling = true;
+        scrollPosition.y = float.MaxValue;
+        focusedLog = null;
+    }
+
+    void EnsureScrollPosition()
 	{
 		if(autoScrolling)
 		{
@@ -381,28 +424,34 @@ public class JBConsole : MonoBehaviour
 		}
 	}
 	
-	void PrintCachedLogs(GUILayoutOption maxwidthscreen)
+	ConsoleLog PrintCachedLogs(GUILayoutOption maxwidthscreen)
 	{
 		ConsoleLog log;
+	    ConsoleLog clicked = null;
 		for (int i = cachedLogs.Count - 1; i >= 0; i--)
 		{
 			log = cachedLogs[i];
 			if(log.repeats > 0)
 			{
-				GUILayout.Label(log.repeats + "x " +log.content.text, style.GetStyleForLogLevel(log.level), maxwidthscreen);
+                GUILayout.Label(log.repeats + "x " + log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
 			}
 			else
 			{
-				GUILayout.Label(log.content, style.GetStyleForLogLevel(log.level), maxwidthscreen);
-			}
+				GUILayout.Label(log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
+            }
+            if (Event.current.type == EventType.MouseUp && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))
+            {
+                clicked = log;
+            }
 		}
+	    return clicked;
 	}
 		
 	bool ShouldShow(ConsoleLog log)
 	{
 		return (log.level >= viewingLevel 
 			&& (viewingChannels == null || Array.IndexOf(viewingChannels, log.channel) >= 0)
-	        && (searchTerm == "" || log.content.text.ToLower().Contains(searchTerm)));
+	        && (searchTerm == "" || log.message.ToLower().Contains(searchTerm)));
 	}
 	
 	void CacheBottomOfLogs(float width, float height)
