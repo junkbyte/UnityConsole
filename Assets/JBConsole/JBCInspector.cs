@@ -123,13 +123,7 @@ public class JBCInspector : MonoBehaviour {
             if (ShouldShowDeclaredType(type, field.DeclaringType) == false)
                 continue;
             value = field.GetValue(focusedObject);
-            if (value != null)
-            {
-                str = value.ToString();
-                if (str.Length > 50) str += " ...";
-            }
-            else str = null;
-            GUILayout.Label(field.Name + ":" + field.FieldType + " = " + str);
+            if(DrawFieldValue(field.Name + ":" + field.FieldType, value)) return;
         }
 
         GUILayout.Label("Properties: ", headerstyle);
@@ -138,13 +132,7 @@ public class JBCInspector : MonoBehaviour {
             if (ShouldShowDeclaredType(type, property.DeclaringType) == false)
                 continue;
             value = property.GetValue(focusedObject, null);
-            if (value != null)
-            {
-                str = value.ToString();
-                if (str.Length > 50) str += " ...";
-            }
-            else str = null;
-            GUILayout.Label(property.Name + ":" +property.PropertyType + " = " + str);
+            if (DrawFieldValue(property.Name + ":" + property.PropertyType, value)) return;
         }
         GUILayout.Label("Methods: ", headerstyle);
         foreach (var method in type.GetMethods())
@@ -160,6 +148,32 @@ public class JBCInspector : MonoBehaviour {
                 continue;
             GUILayout.Label(e.ToString());
         }
+    }
+
+    bool DrawFieldValue(string prefix, object value)
+    {
+        string str;
+        if (value != null)
+        {
+            str = value.ToString();
+            if (str.Length > 30) str += " ...";
+
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label(prefix + " = ");
+            if (GUILayout.Button(str))
+            {
+                focusedObject = value;
+                return true;
+            }
+
+            GUILayout.EndHorizontal();
+        }
+        else
+        {
+            GUILayout.Label(prefix + " = " + value);
+        }
+        return false;
     }
 
     bool ShouldShowDeclaredType(System.Type currentType, System.Type compairingType)
