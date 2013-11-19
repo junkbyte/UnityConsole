@@ -85,7 +85,11 @@ public class JBConsole : MonoBehaviour
 	Rect autoscrolltogglerect = new Rect(0, 0, 110, 22);
 
     Vector2 scrollPosition;
-	
+	Vector3 touchPosition;
+	float scrollVelocity;
+	bool scrolling;
+	bool scrolled;
+
 	int stateHash;
 	
 	void Awake ()
@@ -111,6 +115,31 @@ public class JBConsole : MonoBehaviour
 		{
 			stateHash = logger.stateHash;
 			clearCache();
+		}
+
+		if(Input.GetMouseButton(0))
+		{
+			if(!scrolling && Input.mousePosition.y < Screen.height - GetMenuHeight(GetGuiScale()))
+			{
+				clearCache();
+				if(autoScrolling) scrollPosition.y = int.MaxValue;
+				autoScrolling = false;
+				scrolling = true;
+				scrolled = false;
+				touchPosition = Input.mousePosition;
+			}
+		}
+		else 
+		{
+			scrolling = false;
+		}
+		if(scrolling)
+		{
+			var touch = Input.mousePosition;
+			scrollVelocity = (touch - touchPosition).y;
+			scrollPosition.y += scrollVelocity;
+			touchPosition = touch;
+			scrolled |= Mathf.Abs(scrollVelocity) > 3f;
 		}
 	}
 
@@ -231,20 +260,37 @@ public class JBConsole : MonoBehaviour
         var depth = GUI.depth;
 		GUI.depth = int.MaxValue - 10;
 		
-		float scale = 1;
-        var dpi = Screen.dpi;
-        if (dpi > 0 && BaseDPI > 0) scale = dpi / BaseDPI;
+		var scale = GetGuiScale();
+
+		if(!scrolling && Event.current.type == EventType.Layout)
+		{
+			scrollVelocity *= 0.95f;
+			scrollPosition.y += scrollVelocity;
+		}
 
         DrawGUI(Screen.width, Screen.height, scale);
 
         GUI.depth = depth;
+	}
+
+	float GetGuiScale()
+	{
+		var scale = 1f;
+		var dpi = Screen.dpi;
+		if (dpi > 0 && BaseDPI > 0) scale = dpi / BaseDPI;
+		return scale;
+	}
+
+	float GetMenuHeight(float scale)
+	{
+		return style.MenuStyle.fontSize * 1.5f * scale;
 	}
 	
 	public void DrawGUI(float width, float height, float scale = 1)
     {
         GUILayout.BeginVertical(style.BoxStyle);
 
-        var menuheight = style.MenuStyle.fontSize * 1.5f * scale;
+		var menuheight = GetMenuHeight(scale);
 
         int selection = GUILayout.Toolbar(-1, currentTopMenu, style.MenuStyle, GUILayout.MinWidth(320 * scale), GUILayout.MaxWidth(Screen.width), GUILayout.Height(menuheight));
         if (selection >= 0)
@@ -337,7 +383,7 @@ public class JBConsole : MonoBehaviour
 
         GUILayout.EndScrollView();
 
-		if (hasLogs && Event.current.type == EventType.Repaint)
+		if (!scrolling && hasLogs && Event.current.type == EventType.Repaint)
         {
 			Rect scrollViewRect = GUILayoutUtility.GetLastRect();
             float maxscroll = lastContentRect.y + lastContentRect.height - scrollViewRect.height;
@@ -368,6 +414,7 @@ public class JBConsole : MonoBehaviour
 
             if (GUI.Button(autoscrolltogglerect, "Scroll to bottom"))
             {
+				scrollVelocity = 0f;
                 autoScrolling = true;
             }
         }
@@ -412,7 +459,7 @@ public class JBConsole : MonoBehaviour
 
 				GUILayout.Label(log.Time.ToLongTimeString() + "-" + log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
             }
-            if (Event.current.type == EventType.MouseUp && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))
+			if (!scrolled && Event.current.type == EventType.MouseUp && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))
             {
                 clicked = log;
             }
