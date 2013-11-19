@@ -405,7 +405,7 @@ public class JBConsole : MonoBehaviour
 			log = cachedLogs[i];
 			if(log.repeats > 0)
 			{
-                GUILayout.Label(log.repeats + "x " + log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
+                GUILayout.Label((log.repeats + 1) + "x " + log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
 			}
 			else
 			{
