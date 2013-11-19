@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
 
 [RequireComponent(typeof(JBConsole))]
@@ -17,7 +19,7 @@ public class JBCInspector : MonoBehaviour {
 	void Start ()
     {
         console = GetComponent<JBConsole>();
-        console.OnLogSelectedHandler = OnLogSelectedHandler;
+        console.OnLogSelectedHandler += OnLogSelectedHandler;
 
 
         // testing
@@ -68,14 +70,30 @@ public class JBCInspector : MonoBehaviour {
 
 
         string stack = "";
-        int linenum;
-        foreach (StackFrame stackFrame in focusedLog.stackTrace.GetFrames())
+        if (focusedLog.stackTrace != null)
         {
-            linenum = stackFrame.GetFileLineNumber();
-            var filename = Path.GetFileNameWithoutExtension(stackFrame.GetFileName());
-            stack += filename + ":\t" + stackFrame.GetMethod() + (linenum > 0 ? " @ " + linenum : "") + "\n";
+            int linenum;
+            foreach (StackFrame stackFrame in focusedLog.stackTrace.GetFrames())
+            {
+                linenum = stackFrame.GetFileLineNumber();
+                var filename = Path.GetFileNameWithoutExtension(stackFrame.GetFileName());
+                stack += filename + ":\t" + stackFrame.GetMethod() + (linenum > 0 ? " @ " + linenum : "") + "\n";
+            }
         }
+        else
+        {
+            stack = "Stack trace disabled";
+        }
+        
         GUILayout.Label(stack, maxwidthscreen);
+
+        if (GUILayout.Button("Copy", console.style.MenuStyle))
+        {
+            var str = focusedLog.message + "\n" + stack;
+            Type T = typeof(GUIUtility);
+            PropertyInfo systemCopyBufferProperty = T.GetProperty("systemCopyBuffer", BindingFlags.Static | BindingFlags.NonPublic);
+            systemCopyBufferProperty.SetValue(null, str, null);
+        }
 
         if (focusedLog.references != null)
         {
@@ -116,7 +134,6 @@ public class JBCInspector : MonoBehaviour {
 
 
         object value;
-        string str;
         GUILayout.Label("Fields: ", headerstyle);
         foreach (var field in type.GetFields())
         {

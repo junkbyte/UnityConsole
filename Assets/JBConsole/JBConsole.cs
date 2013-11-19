@@ -30,35 +30,48 @@ public class JBConsole : MonoBehaviour
     public static void AddMenu(string name, JBConsoleMenuHandler callback)
     {
         if (!Exists) return;
-        instance.AddCustomMenu(name, callback);
+		instance.Menu.Add(name, callback);
     }
 
     public static void RemoveMenu(string name)
     {
         if (!Exists) return;
-        instance.RemoveCustomMenu(name);
+		instance.Menu.Remove(name);
     }
 
 	
 	private JBLogger logger;
-    public JBCStyle style { get; private set; }
+    private JBCStyle _style;
+    public JBCStyle style { get { if (_style == null) _style = new JBCStyle(); return _style; }
+    }
 
-    public bool visible = true;
-    public int menuItemWidth = 110;
-    public int BaseDPI = 160;
+    public int menuItemWidth = 135;
+    public int BaseDPI = 120;
+    private bool _visible = true;
+    public bool Visible
+    {
+        get { return _visible; }
+        set
+        {
+            _visible = value;
+            if (OnVisiblityChanged != null) OnVisiblityChanged();
+        }
+    }
+
+	public JBCustomMenu Menu {get; private set;}
+
+    public event JBConsoleMenuHandler OnVisiblityChanged;
 
     JBCDrawBodyHandler DrawGUIBodyHandler;
     public JBCLogSelectedHandler OnLogSelectedHandler;
 	
     string[] levels;
     string[] topMenu;
-    Dictionary<int, JBConsoleMenuHandler> customMenuHandlers;
 
     ConsoleLevel viewingLevel = ConsoleLevel.Debug;
     string[] viewingChannels;
 
     int currentTopMenuIndex = -1;
-	string[] customMenus;
     string[] currentTopMenu;
     string[] currentSubMenu;
     SubMenuHandler subMenuHandler;
@@ -82,44 +95,24 @@ public class JBConsole : MonoBehaviour
 	    gameObject.AddComponent<JBCInspector>();
 		
 		DontDestroyOnLoad(gameObject);
+
+        logger = JBLogger.instance;
 		
-		logger = JBLogger.instance;
-		
+		Menu = new JBCustomMenu();
         levels = Enum.GetNames(typeof(ConsoleLevel));
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
-
-        customMenus = new string[0];
-        customMenuHandlers = new Dictionary<int, JBConsoleMenuHandler>();
 	}
 	
 	void Update ()
     {
+		if (logger == null) return;
+		
 		if(autoScrolling && logger.stateHash != stateHash)
 		{
 			stateHash = logger.stateHash;
 			clearCache();
 		}
 	}
-
-    public void AddCustomMenu(string name, JBConsoleMenuHandler callback)
-    {
-		RemoveMenu(name);
-        JBConsoleUtils.AddToStringArray(ref customMenus, name);
-        customMenuHandlers[customMenus.Length - 1] = callback;
-    }
-
-    public void RemoveCustomMenu(string name)
-    {
-		for(int i = customMenus.Length - 1; i >= 0; i--)
-		{
-			if(customMenus[i] == name)
-			{
-				customMenus = JBConsoleUtils.StringsWithoutIndex(customMenus, i);
-				customMenuHandlers.Remove(i);
-				return;
-			}
-		}
-    }
 
     void OnMenuSelection(int index)
     {
@@ -142,13 +135,14 @@ public class JBConsole : MonoBehaviour
                 searchTerm = "";
                 break;
             case (int)ConsoleMenu.Menu:
-                currentSubMenu = customMenus;
-                subMenuHandler = OnCustomMenuClicked;
+				Menu.PopToRoot();
+				subMenuHandler = Menu.OnCurrentLinkClicked;
                 break;
             case (int)ConsoleMenu.Hide:
-                visible = !visible;
+                Visible = !Visible;
                 return;
         }
+
 		EnsureScrollPosition();
         currentTopMenuIndex = index;
         currentTopMenu = SelectedStateArrayIndex(topMenu, index, true);
@@ -186,14 +180,6 @@ public class JBConsole : MonoBehaviour
         viewingLevel = (ConsoleLevel)Enum.GetValues(typeof(ConsoleLevel)).GetValue(index);
         UpdateLevelsSubMenu();
         clearCache();
-    }
-
-    void OnCustomMenuClicked(int index)
-    {
-        if (customMenuHandlers.ContainsKey(index))
-        {
-            customMenuHandlers[index]();
-        }
     }
 
     void UpdateChannelsSubMenu()
@@ -240,7 +226,7 @@ public class JBConsole : MonoBehaviour
 	
 	void OnGUI ()
 	{
-        if (!visible) return;
+        if (!Visible) return;
 
         var depth = GUI.depth;
 		GUI.depth = int.MaxValue - 10;
@@ -256,17 +242,21 @@ public class JBConsole : MonoBehaviour
 	
 	public void DrawGUI(float width, float height, float scale = 1)
     {
-        if (style == null) style = new JBCStyle();
-
         GUILayout.BeginVertical(style.BoxStyle);
 
-        int selection = GUILayout.Toolbar(-1, currentTopMenu, style.MenuStyle, GUILayout.MinWidth(320 * scale), GUILayout.MaxWidth(480 * scale));
+        var menuheight = style.MenuStyle.fontSize * 1.5f * scale;
+
+        int selection = GUILayout.Toolbar(-1, currentTopMenu, style.MenuStyle, GUILayout.MinWidth(320 * scale), GUILayout.MaxWidth(Screen.width), GUILayout.Height(menuheight));
         if (selection >= 0)
         {
             Defocus();
             OnMenuSelection(selection);
         }
 
+		if(currentTopMenuIndex == (int)ConsoleMenu.Menu)
+		{
+			currentSubMenu = Menu.GetCurrentMenuLink();
+		}
         if (currentSubMenu != null)
         {
 			if(currentSubMenu.Length == 0)
@@ -275,7 +265,9 @@ public class JBConsole : MonoBehaviour
 			}
 			else
 			{
-                selection = GUILayout.SelectionGrid(-1, currentSubMenu, (int)(width / (menuItemWidth * scale)), style.MenuStyle);
+			    var count = (int) (width/(menuItemWidth*scale));
+                var rows = Mathf.Ceil((float) currentSubMenu.Length / (float)count);
+                selection = GUILayout.SelectionGrid(-1, currentSubMenu, count, style.MenuStyle, GUILayout.Height(menuheight * rows));
 	            if (selection >= 0 && subMenuHandler != null)
 	            {
 	                Defocus();
@@ -339,18 +331,15 @@ public class JBConsole : MonoBehaviour
             }
             clickedLog = PrintCachedLogs(maxwidthscreen);
         }
+		bool hasLogs = cachedLogs.Count > 0;
 
-        if (clickedLog != null && OnLogSelectedHandler != null)
-        {
-            OnLogSelectedHandler(clickedLog);
-        }
+		Rect lastContentRect = hasLogs ? GUILayoutUtility.GetLastRect() : new Rect();
 
-        Rect lastContentRect = GUILayoutUtility.GetLastRect();
         GUILayout.EndScrollView();
 
-        Rect scrollViewRect = GUILayoutUtility.GetLastRect();
-        if (Event.current.type == EventType.Repaint)
+		if (hasLogs && Event.current.type == EventType.Repaint)
         {
+			Rect scrollViewRect = GUILayoutUtility.GetLastRect();
             float maxscroll = lastContentRect.y + lastContentRect.height - scrollViewRect.height;
 
             bool atbottom = maxscroll <= 0 || scrollPosition.y > maxscroll - 4; // where 4 = scroll view's skin bound size?
@@ -364,7 +353,12 @@ public class JBConsole : MonoBehaviour
                 scrollPosition.y = float.MaxValue;
                 clearCache();
             }
-        }
+		}
+		
+		if (clickedLog != null && OnLogSelectedHandler != null)
+		{
+			OnLogSelectedHandler(clickedLog);
+		}
 
 
         if (!autoScrolling)
@@ -415,7 +409,8 @@ public class JBConsole : MonoBehaviour
 			}
 			else
 			{
-				GUILayout.Label(log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
+
+				GUILayout.Label(log.Time.ToLongTimeString() + "-" + log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
             }
             if (Event.current.type == EventType.MouseUp && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))
             {
@@ -469,6 +464,13 @@ public class JBConsole : MonoBehaviour
 	void clearCache()
     {
 		cachedLogs = null;
+	}
+
+
+    public T RegisterPlugin<T>() where T : Component
+	{
+	    var comp = gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
+	    return comp;
 	}
 }
 

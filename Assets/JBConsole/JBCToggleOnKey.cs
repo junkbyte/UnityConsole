@@ -16,7 +16,7 @@ public class JBCToggleOnKey : MonoBehaviour {
 	{
 		if(Input.GetKeyDown(key))
 		{
-			console.visible = !console.visible;
+			console.Visible = !console.Visible;
 		}
 	}
 	
@@ -24,7 +24,7 @@ public class JBCToggleOnKey : MonoBehaviour {
 	{
 		if(JBConsole.Exists)	
 		{
-			return JBConsole.instance.gameObject.AddComponent<JBCToggleOnKey>();
+            return JBConsole.instance.RegisterPlugin<JBCToggleOnKey>();
 		}
 		return null;
 	}

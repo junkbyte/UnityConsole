@@ -49,6 +49,7 @@ public class JBCStyle
 	{
 		var style = new GUIStyle();
 		style.richText = true;
+	    style.wordWrap = true;
 		return style;
 	}
 	

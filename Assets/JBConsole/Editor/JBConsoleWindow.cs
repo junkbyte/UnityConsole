@@ -30,12 +30,12 @@ public class JBConsoleWindow : EditorWindow
 		if(JBConsole.Exists)
 		{
 			JBConsole console = JBConsole.instance;
-			if(console.visible)
+			if(console.Visible)
 			{
-				GUILayout.Label("JunkByte Console visible in game.");
+				GUILayout.Label("JunkByte Console Visible in game.");
 				if(GUILayout.Button("Show"))
 				{
-					console.visible = false;
+					console.Visible = false;
 				}
 			}
 			else
@@ -49,7 +49,7 @@ public class JBConsoleWindow : EditorWindow
 			if(GUILayout.Button("Initialize"))
 			{
 				JBConsole.Start();
-				JBConsole.instance.visible = true;
+				JBConsole.instance.Visible = true;
 			}
 		}
 	}

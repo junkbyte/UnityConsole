@@ -27,7 +27,7 @@ public class JBCVisibleOnPress : MonoBehaviour {
 				secsPressed += Time.deltaTime;
 				if(secsPressed >= secsRequiredToPress)
 				{
-					console.visible = true;
+					console.Visible = true;
 					secsPressed = 0;
 				}
 			}
@@ -42,7 +42,7 @@ public class JBCVisibleOnPress : MonoBehaviour {
 	{
 		if(JBConsole.Exists)	
 		{
-			return JBConsole.instance.gameObject.AddComponent<JBCVisibleOnPress>();
+			return JBConsole.instance.RegisterPlugin<JBCVisibleOnPress>();
 		}
 		return null;
 	}

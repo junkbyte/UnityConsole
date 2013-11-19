@@ -19,7 +19,13 @@ public class ConsoleTest : MonoBehaviour {
 		JBCToggleOnKey.RegisterToConsole();
 		JBCVisibleOnPress.RegisterToConsole();
 	    JBCEmail.RegisterToConsole("luaye@junkbyte.com", "Test subject");
-		
+
+
+		for(var i = 0; i < 200; i++)
+		{
+			JBLogger.Debug("spam", "Spam line: " + i);
+		}
+
         JBLogger.Info("Test Info");
         JBLogger.Debug("Test", "test Debug");
         JBLogger.Debug("Test", "test Debug repeat");
