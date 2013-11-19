@@ -276,6 +276,13 @@ public class JBLogger
             Changed();
         }
     }
+
+	public void Clear()
+	{
+		channels.Clear(); 
+		logs.Clear();
+		Changed();
+	}
 	
 	void Changed()
 	{

@@ -11,13 +11,17 @@ public class JBCStyle
     GUIStyle boxStyle;
     GUIStyle menuStyle;
 	Texture2D bgTexture;
+	public GUIStyle HiddenScrollBar { get; private set; }
 	
 	public JBCStyle()
 	{
 		bgTexture = new Texture2D(1, 1);
 		bgTexture.SetPixel(0, 0, new Color(0f, 0f, 0f, 0.8f));
 		bgTexture.Apply();
-		
+
+		HiddenScrollBar = new GUIStyle(GUI.skin.verticalScrollbar);
+		HiddenScrollBar.fixedHeight = HiddenScrollBar.fixedWidth = 0;
+
 		boxStyle = new GUIStyle();
 		boxStyle.normal.background = bgTexture;
         boxStyle.normal.textColor = Color.white;

@@ -27,7 +27,7 @@ public class JBConsole : MonoBehaviour
 		get { return instance != null; }
     }
 
-    public static void AddMenu(string name, JBConsoleMenuHandler callback)
+	public static void AddMenu(string name, Action callback)
     {
         if (!Exists) return;
 		instance.Menu.Add(name, callback);
@@ -46,7 +46,7 @@ public class JBConsole : MonoBehaviour
     }
 
     public int menuItemWidth = 135;
-    public int BaseDPI = 120;
+    public int BaseDPI = 100;
     private bool _visible = true;
     public bool Visible
     {
@@ -60,7 +60,7 @@ public class JBConsole : MonoBehaviour
 
 	public JBCustomMenu Menu {get; private set;}
 
-    public event JBConsoleMenuHandler OnVisiblityChanged;
+	public event Action OnVisiblityChanged;
 
     JBCDrawBodyHandler DrawGUIBodyHandler;
     public JBCLogSelectedHandler OnLogSelectedHandler;
@@ -105,6 +105,17 @@ public class JBConsole : MonoBehaviour
 		Menu = new JBCustomMenu();
         levels = Enum.GetNames(typeof(ConsoleLevel));
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
+		Menu.Add("Clear", Clear);
+	}
+
+	void Clear()
+	{
+		if(logger != null)
+		{
+			scrolling = false;
+			autoScrolling = true;
+			logger.Clear();
+		}
 	}
 	
 	void Update ()
@@ -361,7 +372,7 @@ public class JBConsole : MonoBehaviour
             {
                 scrollPosition.y = float.MaxValue;
             }
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition, style.HiddenScrollBar, style.HiddenScrollBar, maxwidthscreen);
             if (cachedLogs == null)
             {
                 CacheBottomOfLogs(width, height);
@@ -370,7 +381,7 @@ public class JBConsole : MonoBehaviour
         }
         else
         {
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, maxwidthscreen);
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition, style.HiddenScrollBar, style.HiddenScrollBar, maxwidthscreen);
             if (cachedLogs == null)
             {
                 CacheAllOfLogs();
@@ -400,12 +411,6 @@ public class JBConsole : MonoBehaviour
                 clearCache();
             }
 		}
-		
-		if (clickedLog != null && OnLogSelectedHandler != null)
-		{
-			OnLogSelectedHandler(clickedLog);
-		}
-
 
         if (!autoScrolling)
         {
@@ -416,8 +421,14 @@ public class JBConsole : MonoBehaviour
             {
 				scrollVelocity = 0f;
                 autoScrolling = true;
+				clickedLog = null;
             }
-        }
+		}
+
+		if (clickedLog != null && OnLogSelectedHandler != null)
+		{
+			OnLogSelectedHandler(clickedLog);
+		}
     }
 
     public void Focus(JBCDrawBodyHandler drawBodyHandler)

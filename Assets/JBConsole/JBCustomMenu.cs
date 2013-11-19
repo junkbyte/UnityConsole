@@ -17,7 +17,7 @@ public class JBCustomMenu
 		root.Children = new List<MenuItem>();
 	}
 	
-	public void Add(string name, JBConsoleMenuHandler callback)
+	public void Add(string name, Action callback)
 	{
 		if(string.IsNullOrEmpty(name)) return;
 		root.AddPath(GetPath(name), 0, callback);
@@ -75,7 +75,7 @@ public class JBCustomMenu
 	{
 
 		public string Name;
-		public JBConsoleMenuHandler Callback;
+		public Action Callback;
 		public List<MenuItem> Children;
 
 		MenuItem parent;
@@ -85,7 +85,7 @@ public class JBCustomMenu
 			Name = name;
 		}
 		
-		public void AddPath(string[] path, int pathIndex, JBConsoleMenuHandler callback)
+		public void AddPath(string[] path, int pathIndex, Action callback)
 		{
 			var part = path[pathIndex];
 			var child = FindChild(part);
@@ -136,7 +136,7 @@ public class JBCustomMenu
 			return Children != null ? Children.Find(m => m.Name == n) : null;
 		}
 		
-		void SetCallback(JBConsoleMenuHandler callback)
+		void SetCallback(Action callback)
 		{
 			Callback = callback;
 			Children = null;
