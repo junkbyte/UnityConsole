@@ -297,7 +297,7 @@ public class JBConsole : MonoBehaviour
 		return style.MenuStyle.fontSize * 1.5f * scale;
 	}
 	
-	public void DrawGUI(float width, float height, float scale = 1)
+	public void DrawGUI(float width, float height, float scale = 1, bool showScrollBar = false)
     {
         GUILayout.BeginVertical(style.BoxStyle);
 
@@ -349,7 +349,7 @@ public class JBConsole : MonoBehaviour
 
         if (DrawGUIBodyHandler == null)
         {
-            DrawLogScroll(width, height);
+			DrawLogScroll(width, height, showScrollBar);
         }
         else
         {
@@ -359,7 +359,13 @@ public class JBConsole : MonoBehaviour
 	    GUILayout.EndVertical();
 	}
 
-    private void DrawLogScroll(float width, float height)
+	void BeginScrollView(bool showScrollBar, GUILayoutOption options)
+	{
+		if(showScrollBar) scrollPosition = GUILayout.BeginScrollView(scrollPosition, options);
+		else scrollPosition = GUILayout.BeginScrollView(scrollPosition, style.HiddenScrollBar, style.HiddenScrollBar, options);
+	}
+
+	private void DrawLogScroll(float width, float height, bool showScrollBar)
     {
         GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
 
@@ -372,7 +378,7 @@ public class JBConsole : MonoBehaviour
             {
                 scrollPosition.y = float.MaxValue;
             }
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition, style.HiddenScrollBar, style.HiddenScrollBar, maxwidthscreen);
+			BeginScrollView(showScrollBar, maxwidthscreen);
             if (cachedLogs == null)
             {
                 CacheBottomOfLogs(width, height);
@@ -381,7 +387,7 @@ public class JBConsole : MonoBehaviour
         }
         else
         {
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition, style.HiddenScrollBar, style.HiddenScrollBar, maxwidthscreen);
+			BeginScrollView(showScrollBar, maxwidthscreen);
             if (cachedLogs == null)
             {
                 CacheAllOfLogs();

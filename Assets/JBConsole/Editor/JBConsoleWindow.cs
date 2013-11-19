@@ -40,7 +40,7 @@ public class JBConsoleWindow : EditorWindow
 			}
 			else
 			{
-				console.DrawGUI(position.width, position.height);
+				console.DrawGUI(position.width, position.height, 1, true);
 			}
 		}
 		else
