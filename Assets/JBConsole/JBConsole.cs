@@ -10,12 +10,13 @@ public class JBConsole : MonoBehaviour
 {
     delegate void SubMenuHandler(int index);
 
-    public static JBConsole Start()
+    public static JBConsole Start(bool visible = true)
 	{
 		if(instance == null)
 		{
 			var go = new GameObject("JBConsole");
 			instance = go.AddComponent<JBConsole>();
+			instance.Visible = visible;
 		}
 		return instance;
 	}
@@ -128,7 +129,7 @@ public class JBConsole : MonoBehaviour
 			clearCache();
 		}
 
-		if(Input.GetMouseButton(0))
+		if(Visible && Input.GetMouseButton(0))
 		{
 			if(!scrolling && Input.mousePosition.y < Screen.height - GetMenuHeight(GetGuiScale()))
 			{
