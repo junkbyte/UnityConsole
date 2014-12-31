@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 public class JBCStyle
 {
-    private const int MENU_FONT_SIZE = 14;
+	private const int MENU_FONT_SIZE = 14;
+	private const int LOG_FONT_SIZE = 12;
 	
 	Dictionary<ConsoleLevel, GUIStyle> levelToStyle;
 
@@ -52,6 +53,7 @@ public class JBCStyle
 	GUIStyle MakeLogStyle()
 	{
 		var style = new GUIStyle();
+		style.fontSize = LOG_FONT_SIZE;
 		style.richText = true;
 	    style.wordWrap = true;
 		return style;
@@ -75,6 +77,10 @@ public class JBCStyle
     public void SetScale(float scale)
     {
         menuStyle.fontSize = (int)(MENU_FONT_SIZE * scale);
+		foreach(var s in levelToStyle)
+		{
+			s.Value.fontSize = (int)(LOG_FONT_SIZE * scale);
+		}
     }
 	
 	public GUIStyle GetStyleForLogLevel(ConsoleLevel level)

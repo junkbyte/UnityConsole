@@ -8,6 +8,7 @@ public delegate void JBCLogSelectedHandler(ConsoleLog log);
 
 public class JBConsole : MonoBehaviour
 {
+    private const int baseFontSize = 14;
     delegate void SubMenuHandler(int index);
 
     public static JBConsole Start(bool visible = true)
@@ -261,6 +262,7 @@ public class JBConsole : MonoBehaviour
             Array.Copy(array, result, array.Length);
         }
         else result = array;
+		if (index >= result.Length) return result;
         result[index] = "["+ result[index]+"]";
         return result;
     }
@@ -273,7 +275,7 @@ public class JBConsole : MonoBehaviour
 		GUI.depth = int.MaxValue - 10;
 		
 		var scale = GetGuiScale();
-
+		style.SetScale(scale);
 		if(!scrolling && Event.current.type == EventType.Layout)
 		{
 			scrollVelocity *= 0.95f;
@@ -282,6 +284,7 @@ public class JBConsole : MonoBehaviour
 
         DrawGUI(Screen.width, Screen.height, scale);
 
+
         GUI.depth = depth;
 	}
 
@@ -289,13 +292,16 @@ public class JBConsole : MonoBehaviour
 	{
 		var scale = 1f;
 		var dpi = Screen.dpi;
+#if !UNITY_EDITOR
+		if(dpi <= 0) dpi = 150;
+#endif
 		if (dpi > 0 && BaseDPI > 0) scale = dpi / BaseDPI;
 		return scale;
 	}
 
 	float GetMenuHeight(float scale)
 	{
-		return style.MenuStyle.fontSize * 1.5f * scale;
+		return style.MenuStyle.fontSize + (10 * scale);
 	}
 	
 	public void DrawGUI(float width, float height, float scale = 1, bool showScrollBar = false)

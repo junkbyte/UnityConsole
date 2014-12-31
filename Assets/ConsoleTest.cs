@@ -18,8 +18,72 @@ public class ConsoleTest : MonoBehaviour {
 		
 		JBCToggleOnKey.RegisterToConsole();
 		JBCVisibleOnPress.RegisterToConsole();
-	    JBCEmail.RegisterToConsole("luaye@junkbyte.com", "Test subject");
+		JBCEmail.RegisterToConsole("luaye@junkbyte.com", "Test subject");
 
+		JBCKeyBinding.BindDown(new KeyCode[]{KeyCode.Q}, delegate {
+			JBConsole.instance.GetComponent<JBCKeyBinding>().ToggleShowBindings();
+		}, "Q");
+
+		JBCKeyBinding.BindDown(new KeyCode[]{KeyCode.S}, delegate()
+		{
+			Debug.Log("DOWN S");
+		}, "S");
+		JBCKeyBinding.BindDown(new KeyCode[]{KeyCode.A}, delegate()
+		{
+			Debug.Log("DOWN A");
+		}, "A");
+		JBCKeyBinding.BindDown(new KeyCode[]{KeyCode.A, KeyCode.LeftControl}, delegate()
+		{
+			Debug.Log("DOWN CTRL A");
+		}, "CTRL A");
+		JBCKeyBinding.BindDown(new KeyCode[]{KeyCode.A, KeyCode.LeftShift}, delegate()
+		{
+			Debug.Log("DOWN SHIFT A");
+		});
+		JBCKeyBinding.BindDown(new KeyCode[]{KeyCode.A, KeyCode.LeftShift, KeyCode.LeftControl}, delegate()
+		{
+			Debug.Log("DOWN SHIFT CTRL A");
+		});
+		JBCKeyBinding.BindUp(new KeyCode[]{KeyCode.A}, delegate()
+		{
+			Debug.Log("UP A");
+		}, "UP A");
+
+		/*
+		JBCKeyBinding.BindUp(new KeyCode[]{KeyCode.A}, delegate()
+		{
+			Debug.Log("UP A");
+		});
+		JBCKeyBinding.BindUp(new KeyCode[]{KeyCode.A, KeyCode.LeftControl}, delegate()
+		{
+			Debug.Log("UP CTRL A");
+		});
+		JBCKeyBinding.BindUp(new KeyCode[]{KeyCode.A, KeyCode.LeftShift}, delegate()
+		{
+			Debug.Log("UP SHIFT A");
+		});
+		JBCKeyBinding.BindUp(new KeyCode[]{KeyCode.A, KeyCode.LeftShift, KeyCode.LeftControl}, delegate()
+		{
+			Debug.Log("UP SHIFT CTRL A");
+		});
+		/*/
+		
+		JBCKeyBinding.BindHold(new KeyCode[]{KeyCode.A}, delegate()
+		{
+			Debug.Log("HOLD A");
+		});
+		JBCKeyBinding.BindHold(new KeyCode[]{KeyCode.A, KeyCode.LeftControl}, delegate()
+		{
+			Debug.Log("HOLD CTRL A");
+		});
+		JBCKeyBinding.BindHold(new KeyCode[]{KeyCode.A, KeyCode.LeftShift}, delegate()
+		{
+			Debug.Log("HOLD SHIFT A");
+		});
+		JBCKeyBinding.BindHold(new KeyCode[]{KeyCode.A, KeyCode.LeftShift, KeyCode.LeftControl}, delegate()
+		{
+			Debug.Log("HOLD SHIFT CTRL A");
+		});
 
 		for(var i = 0; i < 200; i++)
 		{

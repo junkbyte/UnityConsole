@@ -8,7 +8,7 @@ public class JBCVisibleOnPress : MonoBehaviour {
 	JBConsole console;
 	
 	public float secsRequiredToPress = 1f;
-	public Rect pressArea = new Rect(0, 0, 80, 80);
+	public Rect pressArea = new Rect(0, 0, 100, 100);
 	
 	float secsPressed;
 	

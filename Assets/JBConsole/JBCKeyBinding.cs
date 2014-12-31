@@ -1,91 +1,55 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class JBCKeyBinding : MonoBehaviour
 {
-	readonly List<Binding> downBindings = new List<Binding>();
-	//readonly List<Binding> upBindings = new List<Binding>();
-	readonly List<Binding> holdBindings = new List<Binding>();
+	readonly List<Binding> bindings = new List<Binding>();
 
-	bool showingMap;
+	public delegate bool KeyBindCanTriggerDelegate();
+
+	public KeyBindCanTriggerDelegate CanTriggerHandle;
+	public bool ShowingMap {get; private set;}
+	bool showingMapAlias;
 	
 	void Update ()
 	{
-		KeyCode[] keys;
-		bool matched;
-		for(var i = downBindings.Count - 1; i >= 0; i--)
+		if(CanTriggerHandle != null && !CanTriggerHandle()) return;
+
+		Binding binding;
+		for(var i = bindings.Count - 1; i >= 0; i--)
 		{
-			keys = downBindings[i].keysCombo;
-			for(var j = keys.Length - 1; j >= 0; j--)
+			binding = bindings[i];
+			var nowPressed = binding.IsKeysPressed();
+			if(binding.WasPressed)
 			{
-				if(Input.GetKeyDown(keys[j]))
+				if(!nowPressed)
 				{
-					matched = true;
-					for(var k = keys.Length - 1; k >= 0; k--)
+					binding.WasPressed = false;
+					if(binding.type == BindType.Up)
 					{
-						if(!Input.GetKey(keys[k]))
-						{
-							matched = false;
-							break;
-						}
-					}
-					if(matched)
-					{
-						downBindings[i].Call();
-						i = -1;
-						break;
+						binding.Call();
 					}
 				}
-			}
-		}
-		/*
-		for(var i = upBindings.Count - 1; i >= 0; i--)
-		{
-			matched = true; 
-			keys = upBindings[i].keysCombo;
-			for(var j = keys.Length - 1; j >= 0; j--)
-			{
-				if(Input.GetKeyUp(keys[j]))
+				else if(binding.type == BindType.Hold)
 				{
-					matched = true;
-					for(var k = keys.Length - 1; k >= 0; k--)
-					{
-						if(!Input.GetKey(keys[k]))
-						{
-							matched = false;
-							break;
-						}
-					}
-					if(matched)
-					{
-						upBindings[i].Call();
-						i = -1;
-						break;
-					}
+					binding.Call();
 				}
 			}
-			if(matched)
+			else if(nowPressed)
 			{
-				upBindings[i].Call();
-			}
-		}
-		*/
-		for(var i = holdBindings.Count - 1; i >= 0; i--)
-		{
-			matched = true; 
-			keys = holdBindings[i].keysCombo;
-			for(var j = keys.Length - 1; j >= 0; j--)
-			{
-				if(!Input.GetKey(keys[j]))
+				binding.WasPressed = true;
+				if(binding.type == BindType.Down && 
+				   !bindings.Exists(b => b != binding && 
+				                 b.type == BindType.Down &&
+				                 b.WasPressed && 
+				                 Array.Exists(b.keysCombo, k => Array.IndexOf(binding.keysCombo, k) >= 0))
+				   )
 				{
-					matched = false;
+					binding.Call();
+					return;
 				}
-			}
-			if(matched)
-			{
-				holdBindings[i].Call();
-				break;
 			}
 		}
 	}
@@ -93,7 +57,7 @@ public class JBCKeyBinding : MonoBehaviour
 	bool wasConsoleVisibleBeforeToggle;
 	public void ToggleShowBindings()
 	{
-		if(!showingMap || !JBConsole.instance.Visible)
+		if(!ShowingMap || !JBConsole.instance.Visible)
 		{
 			wasConsoleVisibleBeforeToggle = JBConsole.instance.Visible;
 			ShowBindings();
@@ -105,68 +69,54 @@ public class JBCKeyBinding : MonoBehaviour
 		}
 	}
 
-	public void ShowBindings()
+	public void ShowBindings(bool alias = false)
 	{
-		showingMap = true;
+		ShowingMap = true;
+		showingMapAlias = alias;
 		JBConsole.instance.Visible = true;
 		JBConsole.instance.Focus(DrawBindings);
 	}
 
 	public void HideBindings()
 	{
-		if(showingMap)
+		if(ShowingMap)
 		{
-			showingMap = false;
+			ShowingMap = false;
 			JBConsole.instance.Defocus();
 		}
 	}
-
+	Vector2 scrollPosition;
 	void DrawBindings(float width, float height, float scale = 1)
 	{
 		GUILayoutOption maxwidthscreen = GUILayout.MaxWidth(width);
 		var console = JBConsole.instance;
 
-		var closebtnname = "CLOSE KEY BINDINGS MAP";
-		if(GUILayout.Button(closebtnname, console.style.MenuStyle))
+		if(GUILayout.Button("CLOSE KEY BINDINGS MAP", console.style.MenuStyle))
 		{
 			HideBindings();
 		}
-		List<Binding> sortCopy;
-		if(downBindings.Count > 0)
+		scrollPosition = GUILayout.BeginScrollView (scrollPosition);
+		foreach(var binding in bindings)
 		{
-			sortCopy = new List<Binding>(downBindings);
-			sortCopy.Sort((a, b) => a.ComboString.CompareTo(b.ComboString));
-			foreach(var binding in sortCopy)
+			if(showingMapAlias || !binding.Alias)
 			{
 				GUILayout.Label(binding.ComboString, maxwidthscreen);
 			}
 		}
-		if(holdBindings.Count > 0)
-		{
-			sortCopy = new List<Binding>(holdBindings);
-			sortCopy.Sort((a, b) => a.ComboString.CompareTo(b.ComboString));
-			foreach(var binding in sortCopy)
-			{
-				GUILayout.Label("HOLD " + binding.ComboString, maxwidthscreen);
-			}
-		}
-		if(GUILayout.Button(closebtnname, console.style.MenuStyle))
-		{
-			HideBindings();
-		}
+		GUILayout.EndScrollView ();
 	}
 	
-	Binding FindBinding(List<Binding> existingBindings, KeyCode[] keysCombo)
+	Binding FindBinding(BindType type, KeyCode[] keysCombo)
 	{
 		Binding binding;
 		KeyCode[] keys;
 		var len = keysCombo.Length;
 		bool found;
-		for(var i = existingBindings.Count - 1; i >= 0; i--)
+		for(var i = bindings.Count - 1; i >= 0; i--)
 		{
-			binding = existingBindings[i];
+			binding = bindings[i];
 			keys = binding.keysCombo;
-			if(keys.Length == len)
+			if(binding.type == type && keys.Length == len)
 			{
 				found = true;
 				for(var j = keys.Length - 1; j >= 0; j--)
@@ -186,61 +136,72 @@ public class JBCKeyBinding : MonoBehaviour
 		return null;
 	}
 
-	Binding FindOrCreateBinding(List<Binding> existingBindings, KeyCode[] keysCombo)
+	Binding FindOrCreateBinding(BindType type, KeyCode[] keysCombo)
 	{
-		var binding = FindBinding(existingBindings, keysCombo);
+		var binding = FindBinding(type, keysCombo);
 		if(binding == null)
 		{
-			binding = new Binding(keysCombo);
-			existingBindings.Add(binding);
+			binding = new Binding(type, keysCombo);
+			bindings.Add(binding);
 
 			if(keysCombo.Length > 1)
 			{
-				existingBindings.Sort((a, b) => a.keysCombo.Length - b.keysCombo.Length);
+				// those with more combo gets picked up earlier.
+				bindings.Sort((a, b) => a.keysCombo.Length - b.keysCombo.Length);
 			}
 		}
 		return binding;
 	}
 
-	void Unbind(List<Binding> existingBindings, Action callback)
+	void Unbind(BindType type, Action callback)
 	{
 		Binding binding;
-		for(var i = existingBindings.Count - 1; i >= 0; i--)
+		for(var i = bindings.Count - 1; i >= 0; i--)
 		{
-			binding = existingBindings[i];
+			binding = bindings[i];
 			if(binding.callback == callback)
 			{
-				existingBindings.RemoveAt(i);
+				bindings.RemoveAt(i);
 			}
 		}
 	}
 
-	public static void BindDown(KeyCode[] keysCombo, Action callback, string description = null)
+	public static void BindDown(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
 		var instance = Instance;
 		if(instance)
 		{
-			instance.FindOrCreateBinding(instance.downBindings, keysCombo).Set(callback, description);
+			instance.FindOrCreateBinding(BindType.Down, keysCombo).Set(callback, description, false);
+			foreach(var a in alias)
+			{
+				instance.FindOrCreateBinding(BindType.Down, a).Set(callback, description, true);
+			}
 		}
 	}
 
-	/*
-	public static void BindUp(KeyCode[] keysCombo, Action callback, string description = null)
+	public static void BindUp(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
 		var instance = Instance;
 		if(instance)
 		{
-			instance.FindOrCreateBinding(instance.upBindings, keysCombo).Set(callback, description);
+			instance.FindOrCreateBinding(BindType.Up, keysCombo).Set(callback, description, false);
+			foreach(var a in alias)
+			{
+				instance.FindOrCreateBinding(BindType.Up, a).Set(callback, description, true);
+			}
 		}
 	}
-	*/
 
-	public static void BindHold(KeyCode[] keysCombo, Action callback, string description = null)
+	public static void BindHold(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
 		var instance = Instance;
 		if(instance)
 		{
-			instance.FindOrCreateBinding(instance.holdBindings, keysCombo).Set(callback, description);
+			instance.FindOrCreateBinding(BindType.Hold, keysCombo).Set(callback, description, false);
+		}
+		foreach(var a in alias)
+		{
+			instance.FindOrCreateBinding(BindType.Hold, a).Set(callback, description, true);
 		}
 	}
 
@@ -249,27 +210,25 @@ public class JBCKeyBinding : MonoBehaviour
 		var instance = Instance;
 		if(instance)
 		{
-			instance.Unbind(instance.downBindings, callback);
+			instance.Unbind(BindType.Down, callback);
 		}
 	}
 
-	/*
 	public static void UnbindUp(Action callback)
 	{
 		var instance = Instance;
 		if(instance)
 		{
-			instance.Unbind(instance.upBindings, callback);
+			instance.Unbind(BindType.Up, callback);
 		}
 	}
-	*/
 	
 	public static void UnbindHold(Action callback)
 	{
 		var instance = Instance;
 		if(instance)
 		{
-			instance.Unbind(instance.holdBindings, callback);
+			instance.Unbind(BindType.Hold, callback);
 		}
 	}
 	
@@ -278,9 +237,9 @@ public class JBCKeyBinding : MonoBehaviour
 		var instance = Instance;
 		if(instance)
 		{
-			instance.Unbind(instance.downBindings, callback);
-			//instance.Unbind(instance.upBindings, callback);
-			instance.Unbind(instance.holdBindings, callback);
+			instance.Unbind(BindType.Up, callback);
+			instance.Unbind(BindType.Down, callback);
+			instance.Unbind(BindType.Hold, callback);
 		}
 	}
 
@@ -297,20 +256,47 @@ public class JBCKeyBinding : MonoBehaviour
 		}
 	}
 
+	enum BindType
+	{
+		Down,
+		Hold,
+		Up
+	}
+
 	class Binding
 	{
+		public BindType type;
 		public KeyCode[] keysCombo;
 		public Action callback;
 		public string desc;
-		public Binding(KeyCode[] keysCombo)
+		public bool Alias;
+
+		public bool WasPressed;
+
+		public Binding(BindType type, KeyCode[] keysCombo)
 		{
+			this.type = type;
 			this.keysCombo = keysCombo;
+			if(keysCombo.Length == 0) throw new System.Exception("Key combo can not be blank.");
 		}
 
-		public void Set(Action callback, string desc)
+		public void Set(Action callback, string desc, bool alias)
 		{
 			this.callback = callback;
 			this.desc = desc;
+			this.Alias = alias;
+		}
+
+		public bool IsKeysPressed()
+		{
+			for(var i = keysCombo.Length - 1; i >= 0; i--)
+			{
+				if(!Input.GetKey(keysCombo[i]))
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 
 		public void Call()
@@ -329,6 +315,9 @@ public class JBCKeyBinding : MonoBehaviour
 				if(comboString == null)
 				{
 					comboString = "";
+					if(type == BindType.Up) comboString += "UP ";
+					else if(type == BindType.Down) comboString += "DOWN ";
+					else if(type == BindType.Hold) comboString += "HOLD ";
 					var l = keysCombo.Length - 1;
 					for(var i = 0; i <= l; i++)
 					{

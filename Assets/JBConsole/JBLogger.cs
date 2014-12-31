@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Collections;
 
+[System.Serializable]
 public class JBLogger
 {
 	public const string allChannelsName = " * ";

@@ -16,11 +16,12 @@ public class JBCEmail : MonoBehaviour
     public JBCEmailFormatter Formatter;
     public JBCEmailPostFormatter PostFormatter;
 
+	public bool Inverted;
 	
 	void Awake ()
 	{
 		console = GetComponent<JBConsole>();
-        console.Menu.Add("Email", SendEmail);
+        if (console != null) console.Menu.Add("Email", SendEmail);
 	}
 
     void OnDestroy()
@@ -35,14 +36,26 @@ public class JBCEmail : MonoBehaviour
 
             if (Formatter == null) Formatter = DefaultFormatter;
 
-            string body = "";
+			var str = new StringBuilder();
 
-            foreach (ConsoleLog log in JBLogger.instance.Logs)
-            {
-                body += Formatter(log);
-            }
+			if(Inverted)
+			{
+				var logs = JBLogger.instance.Logs;
+				for(var i = logs.Count - 1; i >= 0; i--)
+				{
+					str.Append(Formatter(logs[i]));
+				}
+			}
+			else
+			{
+				foreach (ConsoleLog log in JBLogger.instance.Logs)
+				{
+					str.Append(Formatter(log));
+				}
+			}
 
-            if (PostFormatter != null) body = PostFormatter(body);
+			var body = str.ToString();
+			if (PostFormatter != null) body = PostFormatter(body);
 
             var to = string.IsNullOrEmpty(To) ? "" : To;
             body = "mailto:" + to + "?" + URLPart("subject=", Subject) + URLPart("&body=", body);
@@ -50,8 +63,6 @@ public class JBCEmail : MonoBehaviour
             Application.OpenURL(body);
         }
     }
-
-    
 
     string URLPart(string prefix, string body)
     {

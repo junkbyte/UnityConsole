@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
 
-
+[System.Serializable]
 public class JBCustomMenu
 {
 	MenuItem root = new MenuItem("root");
@@ -175,7 +175,7 @@ public class JBCustomMenu
 			if(parent != null) index--;
 			if(index < 0 || index >= Children.Count) return parent;
 
-		    try
+		    //try
 		    {
                 var child = Children[index];
                 if (child.Callback != null)
@@ -188,11 +188,10 @@ public class JBCustomMenu
                     return child;
                 }
 		    }
-		    catch (Exception)
+		    /*catch (Exception)
             {
 		        return parent;
-		    }
-			
+		    }*/
 		}
 	}
 }
