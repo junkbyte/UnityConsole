@@ -130,7 +130,7 @@ public class JBConsole : MonoBehaviour
 			clearCache();
 		}
 
-		if(Visible && Input.GetMouseButton(0))
+		if(Visible && _style != null && Input.GetMouseButton(0))
 		{
 			if(!scrolling && Input.mousePosition.y < Screen.height - GetMenuHeight(GetGuiScale()))
 			{
@@ -343,7 +343,7 @@ public class JBConsole : MonoBehaviour
         if (currentTopMenuIndex == (int)ConsoleMenu.Search)
         {
             GUI.SetNextControlName("SearchTF");
-            string newTerm = GUILayout.TextField(searchTerm);
+			string newTerm = GUILayout.TextField(searchTerm, style.SearchStyle);
 			if(newTerm != searchTerm)
 			{
                 Defocus();
@@ -476,12 +476,12 @@ public class JBConsole : MonoBehaviour
 			log = cachedLogs[i];
 			if(log.repeats > 0)
 			{
-                GUILayout.Label((log.repeats + 1) + "x " + log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
+                GUILayout.Label((log.repeats + 1) + "x " + log.GetUnityLimitedMessage(), style.GetStyleForLogLevel(log.level), maxwidthscreen);
 			}
 			else
 			{
 
-				GUILayout.Label(log.Time.ToLongTimeString() + "-" + log.message, style.GetStyleForLogLevel(log.level), maxwidthscreen);
+				GUILayout.Label(log.Time.ToLongTimeString() + "-" + log.GetUnityLimitedMessage(), style.GetStyleForLogLevel(log.level), maxwidthscreen);
             }
 			if (!scrolled && Event.current.type == EventType.MouseUp && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))
             {
