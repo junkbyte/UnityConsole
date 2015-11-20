@@ -6,9 +6,9 @@ public class JBCLogPassThrough : MonoBehaviour
 
 	void SetupUnityToJBC()
 	{
-		Application.RegisterLogCallback(HandleUnityLog);
+		Application.logMessageReceived -= HandleUnityLog;
+		Application.logMessageReceived += HandleUnityLog;
 	}
-	
 
 	void HandleUnityLog(string logString, string stackTrace, LogType type)
 	{

@@ -71,9 +71,9 @@ public class JBLogger
         instance.AddCh(ConsoleLevel.Error, defaultChannelName, message);
     }
 
-    public static void Error(string message, int errorCode)
+    public static void Fatal(string message)
     {
-        instance.AddCh(ConsoleLevel.Error, defaultChannelName, message, errorCode);
+        instance.AddCh(ConsoleLevel.Fatal, defaultChannelName, message);
     }
 	
 	public static void Log(params object[] objects)
@@ -99,12 +99,12 @@ public class JBLogger
 	public static void Error(params object[] objects)
     {
         instance.AddCh(ConsoleLevel.Error, defaultChannelName, objects);
-    }
+	}
 
-    public static void Error(int errorCode, params object[] objects)
-    {
-        instance.AddCh(ConsoleLevel.Error, defaultChannelName, objects, errorCode);
-    }
+	public static void Fatal(params object[] objects)
+	{
+		instance.AddCh(ConsoleLevel.Fatal, defaultChannelName, objects);
+	}
 
 	
 	public static void DebugCh(string channel, string message)
@@ -121,25 +121,15 @@ public class JBLogger
     {
         instance.AddCh(ConsoleLevel.Warn, channel, message);
     }
-	
-	public static void ErrorCh(string channel, string message)
+
+    public static void ErrorCh(string channel, string message)
     {
-        ErrorCh(channel, message, 0);
-    }
-	
-	public static void FatalCh(string channel, string message)
-    {
-        FatalCh(channel, message, 0);
+        instance.AddCh(ConsoleLevel.Error, channel, message);
     }
 
-    public static void ErrorCh(string channel, string message, int errorCode)
+    public static void FatalCh(string channel, string message)
     {
-        instance.AddCh(ConsoleLevel.Error, channel, message, errorCode);
-    }
-
-    public static void FatalCh(string channel, string message, int errorCode)
-    {
-        instance.AddCh(ConsoleLevel.Fatal, channel, message, errorCode);
+        instance.AddCh(ConsoleLevel.Fatal, channel, message);
     }
 	
 	public static void DebugCh(string channel, params object[] objects)
@@ -156,25 +146,15 @@ public class JBLogger
     {
         instance.AddCh(ConsoleLevel.Warn, channel, objects);
     }
-	
-	public static void ErrorCh(string channel, params object[] objects)
+
+    public static void ErrorCh(string channel, params object[] objects)
     {
-        ErrorCh(channel, 0, objects);
-    }
-	
-	public static void FatalCh(string channel, params object[] objects)
-    {
-        FatalCh(channel, 0, objects);
+        instance.AddCh(ConsoleLevel.Error, channel, objects);
     }
 
-    public static void ErrorCh(string channel, int errorCode, params object[] objects)
+    public static void FatalCh(string channel, params object[] objects)
     {
-        instance.AddCh(ConsoleLevel.Error, channel, objects, errorCode);
-    }
-
-    public static void FatalCh(string channel, int errorCode, params object[] objects)
-    {
-        instance.AddCh(ConsoleLevel.Fatal, channel, objects, errorCode);
+        instance.AddCh(ConsoleLevel.Fatal, channel, objects);
     }
 
     public static string GetStringOf(object[] objects, List<WeakReference> references)
@@ -223,7 +203,7 @@ public class JBLogger
 
     private List<WeakReference> emptyRefList = new List<WeakReference>();
 
-    public void AddCh(ConsoleLevel level, string channel, object[] objects, int errorCode = 0)
+    public void AddCh(ConsoleLevel level, string channel, object[] objects)
     {
         var log = new ConsoleLog();
         log.message = GetStringOf(objects, emptyRefList);
@@ -235,18 +215,16 @@ public class JBLogger
             log.references = emptyRefList;
             emptyRefList = new List<WeakReference>();
         }
-        log.errorCode = errorCode;
         Add(log);
     }
 
-    public void AddCh(ConsoleLevel level, string channel, string message, int errorCode = 0)
+    public void AddCh(ConsoleLevel level, string channel, string message)
     {
         var log = new ConsoleLog();
         log.message = message;
         log.level = level;
         log.channel = channel;
         log.Time = DateTime.UtcNow;
-        log.errorCode = errorCode;
         Add(log);
     }
 
@@ -310,5 +288,4 @@ public class ConsoleLog
     public StackTrace stackTrace;
 	public int repeats;
     public List<WeakReference> references;
-    public int errorCode;
 }
