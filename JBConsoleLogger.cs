@@ -6,21 +6,25 @@ public class JBConsoleLogger : Loggable
 {
 	public Signal<bool> VisibilityChanged = new Signal<bool>();
 
-	public void Init()
+	public virtual void Init()
 	{
 		if(!JBConsole.instance)
 		{
 			JBConsole.Start();
-			JBConsole.instance.Visible = false;
-
-			#if UNITY_EDITOR
-			JBCToggleOnKey.RegisterToConsole();
-			#endif
-			JBCVisibleOnPress.RegisterToConsole();
+			SetupConsole(JBConsole.instance);
 		}
 	}
 
-	public void Destroy()
+	protected virtual void SetupConsole(JBConsole console)
+	{
+		console.Visible = false;
+		#if UNITY_EDITOR
+		JBCToggleOnKey.RegisterToConsole();
+		#endif
+		JBCVisibleOnPress.RegisterToConsole();
+	}
+
+	public virtual void Destroy()
 	{
 		if(JBConsole.instance)
 		{
@@ -86,7 +90,7 @@ public class JBConsoleLogger : Loggable
 		false;
 #endif
 
-	void Add(ConsoleLevel level, string channel, object[] objects, int errorCode = 0)
+	protected virtual void Add(ConsoleLevel level, string channel, object[] objects, int errorCode = 0)
 	{
 		JBLogger.instance.AddCh(level, channel, objects);
 		
