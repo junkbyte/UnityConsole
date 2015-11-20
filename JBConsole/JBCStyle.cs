@@ -10,7 +10,8 @@ public class JBCStyle
 	Dictionary<ConsoleLevel, GUIStyle> levelToStyle;
 
     GUIStyle boxStyle;
-    GUIStyle menuStyle;
+	GUIStyle menuStyle;
+	public GUIStyle SearchStyle { get; private set;}
 	Texture2D bgTexture;
 	public GUIStyle HiddenScrollBar { get; private set; }
 	
@@ -25,7 +26,10 @@ public class JBCStyle
 
 		boxStyle = new GUIStyle();
 		boxStyle.normal.background = bgTexture;
-        boxStyle.normal.textColor = Color.white;
+		boxStyle.normal.textColor = Color.white;
+		
+		SearchStyle = new GUIStyle(GUI.skin.textField);
+		SearchStyle.fontSize = MENU_FONT_SIZE;
 
         menuStyle = new GUIStyle(GUI.skin.button);
         menuStyle.normal.textColor = Color.white;
@@ -76,7 +80,8 @@ public class JBCStyle
 
     public void SetScale(float scale)
     {
-        menuStyle.fontSize = (int)(MENU_FONT_SIZE * scale);
+		menuStyle.fontSize = (int)(MENU_FONT_SIZE * scale);
+		SearchStyle.fontSize = (int)(MENU_FONT_SIZE * scale);
 		foreach(var s in levelToStyle)
 		{
 			s.Value.fontSize = (int)(LOG_FONT_SIZE * scale);

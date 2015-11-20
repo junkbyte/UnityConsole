@@ -12,7 +12,7 @@ public class JBLogger
     public const ConsoleLevel defaultConsoleLevel = ConsoleLevel.Debug;
 
 #if UNITY_EDITOR
-    public int maxLogs = 50000;
+    public int maxLogs = 5000;
 #else
     public int maxLogs = 500;
 #endif
@@ -310,5 +310,16 @@ public class ConsoleLog
     public StackTrace stackTrace;
 	public int repeats;
     public List<WeakReference> references;
-    public int errorCode;
+	public int errorCode;
+
+	public string GetUnityLimitedMessage()
+	{
+		var message = this.message;
+		const int MAX_LENGTH = System.UInt16.MaxValue / 4 - 1; //From unity source
+		if (message.Length > MAX_LENGTH)
+		{
+			message = message.Substring(0, MAX_LENGTH);
+		}
+		return message;
+	}
 }

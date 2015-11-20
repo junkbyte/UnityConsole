@@ -66,7 +66,7 @@ public class JBCInspector : MonoBehaviour {
 
     private void DrawLogInspection(GUILayoutOption maxwidthscreen)
     {
-        GUILayout.Label(focusedLog.message, console.style.GetStyleForLogLevel(focusedLog.level), maxwidthscreen);
+		GUILayout.Label(focusedLog.GetUnityLimitedMessage(), console.style.GetStyleForLogLevel(focusedLog.level), maxwidthscreen);
 
 
         string stack = "";

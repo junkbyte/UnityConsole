@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 
 [RequireComponent(typeof(JBConsole))]
@@ -29,3 +30,4 @@ public class JBCToggleOnKey : MonoBehaviour {
 		return null;
 	}
 }
+#endif
