@@ -7,3 +7,10 @@
 *.unityproj
 *.sln
 *.userprefs
+
+**/bin
+**/obj
+**/dll
+**/*.idea
+**/*.iml
+**/target
