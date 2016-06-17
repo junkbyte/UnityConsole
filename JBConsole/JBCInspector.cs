@@ -90,9 +90,7 @@ public class JBCInspector : MonoBehaviour {
         if (GUILayout.Button("Copy", console.style.MenuStyle))
         {
             var str = focusedLog.message + "\n" + stack;
-            Type T = typeof(GUIUtility);
-            PropertyInfo systemCopyBufferProperty = T.GetProperty("systemCopyBuffer", BindingFlags.Static | BindingFlags.NonPublic);
-            systemCopyBufferProperty.SetValue(null, str, null);
+            GUIUtility.systemCopyBuffer = str;
         }
 
         if (focusedLog.references != null)
