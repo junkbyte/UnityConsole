@@ -203,7 +203,7 @@ public class JBLogger
 
     private List<WeakReference> emptyRefList = new List<WeakReference>();
 
-    public void AddCh(ConsoleLevel level, string channel, object[] objects)
+    public ConsoleLog AddCh(ConsoleLevel level, string channel, object[] objects)
     {
         var log = new ConsoleLog();
         log.message = GetStringOf(objects, emptyRefList);
@@ -216,6 +216,7 @@ public class JBLogger
             emptyRefList = new List<WeakReference>();
         }
         Add(log);
+        return log;
     }
 
     public void AddCh(ConsoleLevel level, string channel, string message)

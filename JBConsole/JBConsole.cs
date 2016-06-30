@@ -8,6 +8,9 @@ public delegate void JBCLogSelectedHandler(ConsoleLog log);
 
 public class JBConsole : MonoBehaviour
 {
+    public static ConsoleLog ToastLog;
+    public static float ToastExpiry;
+
     private const int baseFontSize = 14;
     delegate void SubMenuHandler(int index);
 
@@ -269,21 +272,28 @@ public class JBConsole : MonoBehaviour
 	
 	void OnGUI ()
 	{
-        if (!Visible) return;
+        if (!Visible && ToastLog == null) return;            
 
         var depth = GUI.depth;
 		GUI.depth = int.MaxValue - 10;
 		
 		var scale = GetGuiScale();
 		style.SetScale(scale);
-		if(!scrolling && Event.current.type == EventType.Layout)
-		{
-			scrollVelocity *= 0.95f;
-			scrollPosition.y += scrollVelocity;
-		}
 
-        DrawGUI(Screen.width, Screen.height, scale);
+        if (ToastLog != null && !Visible)
+        {
+            ShowToast(Screen.width, Screen.height, scale);
+        }
+        else
+        {
+            if (!scrolling && Event.current.type == EventType.Layout)
+            {
+                scrollVelocity *= 0.95f;
+                scrollPosition.y += scrollVelocity;
+            }
 
+            DrawGUI(Screen.width, Screen.height, scale);
+        }
 
         GUI.depth = depth;
 	}
@@ -366,7 +376,52 @@ public class JBConsole : MonoBehaviour
 	    GUILayout.EndVertical();
 	}
 
-	void BeginScrollView(bool showScrollBar, GUILayoutOption options)
+    void ShowToast(float width, float height, float scale)
+    {
+        var padding = 10*scale;
+        var menuheight = GetMenuHeight(scale);
+
+        var backStro = new GUIStyle(style.BoxStyle);
+        var toastStyle = new GUIStyle();
+        toastStyle.fontSize = (int) (14 * scale);
+        toastStyle.normal.textColor = new Color(1f, 1f, 1f);
+        toastStyle.wordWrap = true;
+        toastStyle.alignment = TextAnchor.UpperLeft;
+        backStro.stretchHeight = true;
+        string textMsg1 = ToastLog.GetUnityLimitedMessage();
+        if (textMsg1.Length > 200)
+        {
+            textMsg1 = textMsg1.Substring(0, 200) + "...";
+        }
+
+        var textHeight = toastStyle.CalcHeight(new GUIContent(textMsg1),width - (2*padding));
+
+        GUILayout.BeginArea(new Rect(padding,padding,width-(2*padding),textHeight + menuheight), backStro);
+
+        GUILayout.Label(textMsg1, toastStyle, new GUILayoutOption[] { GUILayout.MaxWidth(width) });
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("SHOW",style.MenuStyle))
+        {
+            ToastLog = null;
+            Visible = true;
+        }
+
+        if (GUILayout.Button("DISMISS", style.MenuStyle))
+        {
+            ToastLog = null;
+        }
+
+        GUILayout.EndHorizontal();
+        GUILayout.EndArea();
+
+        if (Time.time > ToastExpiry)
+        {
+            ToastLog = null;
+        }
+    }
+
+    void BeginScrollView(bool showScrollBar, GUILayoutOption options)
 	{
 		if(showScrollBar) scrollPosition = GUILayout.BeginScrollView(scrollPosition, options);
 		else scrollPosition = GUILayout.BeginScrollView(scrollPosition, style.HiddenScrollBar, style.HiddenScrollBar, options);

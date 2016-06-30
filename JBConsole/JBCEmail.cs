@@ -22,11 +22,22 @@ public class JBCEmail : MonoBehaviour
 	{
 		console = GetComponent<JBConsole>();
         if (console != null) console.Menu.Add("Email", SendEmail);
+        if (console != null) console.Menu.Add("dev/Set Email", SetEmail);
 	}
+
+    public void SetEmail()
+    {
+        if (console != null)
+        {
+            console.RegisterPlugin<JBEmailEntry>();
+            console.Visible = false;
+        }
+    }
 
     void OnDestroy()
     {
 		if(console) console.Menu.Remove("Email");
+        if(console) console.Menu.Remove("dev/Set Email");
     }
 
     public void SendEmail()
@@ -37,6 +48,9 @@ public class JBCEmail : MonoBehaviour
             if (Formatter == null) Formatter = DefaultFormatter;
 
 			var str = new StringBuilder();
+
+            var sendTo = JBEmailEntry.GetSavedEmail();
+            if (string.IsNullOrEmpty(sendTo)) sendTo = To;
 
 			if(Inverted)
 			{
@@ -57,8 +71,8 @@ public class JBCEmail : MonoBehaviour
 			var body = str.ToString();
 			if (PostFormatter != null) body = PostFormatter(body);
 
-            var to = string.IsNullOrEmpty(To) ? "" : To;
-            body = "mailto:" + to + "?" + URLPart("subject=", Subject) + URLPart("&body=", body);
+            sendTo = string.IsNullOrEmpty(sendTo) ? "" : sendTo;
+            body = "mailto:" + sendTo + "?" + URLPart("subject=", Subject) + URLPart("&body=", body);
 
             Application.OpenURL(body);
         }

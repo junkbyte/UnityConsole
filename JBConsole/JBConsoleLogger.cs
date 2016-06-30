@@ -82,17 +82,18 @@ public class JBConsoleLogger : Loggable
 	{
 		Add(ConsoleLevel.Error, channel, objects, errorCode);
 	}
-	
-	public static bool ShowConsoleOnError = 
+
+    public static bool ShowConsoleOnError = false;
+
+    public static bool ShowToastOnError =
 #if DEBUG
-		true;
+        true;
 #else
 		false;
 #endif
-
-	protected virtual void Add(ConsoleLevel level, string channel, object[] objects, int errorCode = 0)
+    protected virtual ConsoleLog Add(ConsoleLevel level, string channel, object[] objects, int errorCode = 0, System.Diagnostics.StackTrace stackTrace = null)
 	{
-		JBLogger.instance.AddCh(level, channel, objects);
+		var log = JBLogger.instance.AddCh(level, channel, objects);
 		
 		if ((level == ConsoleLevel.Error || level == ConsoleLevel.Fatal))
 		{
@@ -102,8 +103,13 @@ public class JBConsoleLogger : Loggable
 			{
 				ShowConsoleOnError = false;
 				JBConsole.instance.Visible = true;
+			}else if (ShowToastOnError && JBConsole.instance && JBConsole.ToastLog == null)
+			{
+			    JBConsole.ToastLog = log;
+			    JBConsole.ToastExpiry = Time.time + 9.0f;
 			}
 		}
+        return log;
 	}
 	
 	public static void PrintStackTrace(string channel)
