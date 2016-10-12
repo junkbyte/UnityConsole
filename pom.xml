@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <groupId>com.spaceape.shared</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <artifactId>unity-jbconsole</artifactId>
     <packaging>pom</packaging>
 
@@ -101,12 +100,12 @@
                     <tasks>
                         <copy todir="${project.build.directory}/csbin/unity-jbconsole/JBConsole">
                             <fileset dir="${basedir}/JBConsole">
-                                <include name="**/*"/>
+                                <include name="**/*" />
                             </fileset>
                         </copy>
                         <copy todir="${project.build.directory}/csbin/unity-jbconsole/">
                             <fileset dir="${basedir}">
-                                <include name="JBConsole.meta"/>
+                                <include name="JBConsole.meta" />
                             </fileset>
                         </copy>
                     </tasks>
