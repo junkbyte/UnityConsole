@@ -28,7 +28,7 @@
     </scm>
 
     <properties>
-        <shared-dlls.version>0.0.2-SNAPSHOT</shared-dlls.version>
+        <shared-dlls.version>0.0.9</shared-dlls.version>
     </properties>
 
     <dependencies>
