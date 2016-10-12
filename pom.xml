@@ -21,10 +21,10 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:spaceapegames/shared-unity-ui.git</connection>
-        <tag>scm:git:git@github.com:spaceapegames/shared-unity-ui.git</tag>
-        <url>scm:git:git@github.com:spaceapegames/shared-unity-ui.git</url>
-        <developerConnection>scm:git:git@github.com:spaceapegames/shared-unity-ui.git</developerConnection>
+        <connection>scm:git:git@github.com:spaceapegames/unity-JBConsole.git</connection>
+        <tag>scm:git:git@github.com:spaceapegames/unity-JBConsole.git</tag>
+        <url>scm:git:git@github.com:spaceapegames/unity-JBConsole.git</url>
+        <developerConnection>scm:git:git@github.com:spaceapegames/unity-JBConsole.git</developerConnection>
     </scm>
 
     <properties>
