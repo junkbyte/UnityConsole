@@ -14,7 +14,7 @@
             <excludes>
             	<exclude>Properties\*</exclude>            	
 	    </excludes>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>unity-jbconsole/</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/unity-JBConsole-editor/</directory>
@@ -25,7 +25,7 @@
             <excludes>
             	<exclude>Properties\*</exclude>            	
 	    </excludes>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>unity-jbconsole/</outputDirectory>
         </fileSet>
         
     </fileSets>
