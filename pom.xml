@@ -29,7 +29,7 @@
     <properties>
         <shared-dlls.version>0.0.9</shared-dlls.version>
         <unity-common.version>0.0.9</unity-common.version>
-        <csharp-common.version>0.0.10-SNAPSHOT</csharp-common.version>         
+        <csharp-common.version>0.0.10</csharp-common.version>
     </properties>
 
     <dependencies>
