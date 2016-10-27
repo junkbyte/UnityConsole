@@ -17,16 +17,16 @@ public class JBLogger
     public int maxLogs = 500;
 #endif
     public bool RecordStackTrace = true;
-	
-    List<string> channels;  
-	
+
+    List<string> channels;
+
     List<ConsoleLog> logs = new List<ConsoleLog>();
 	int _stateHash = int.MinValue;
-	
+
 	public List<string> Channels { get{return channels;} }
     public List<ConsoleLog> Logs { get{return logs;} }
 	public int stateHash { get { return _stateHash;} } // or just use delegate?
-		
+
 	private static JBLogger _instance;
 
 	public static JBLogger instance
@@ -45,12 +45,12 @@ public class JBLogger
 	{
         channels = new List<string>() { allChannelsName, defaultChannelName };
 	}
-	
+
 	public static void Log(string message)
     {
         instance.AddCh(ConsoleLevel.Debug, defaultChannelName, message);
     }
-	
+
 	public static void Debug(string message)
     {
         instance.AddCh(ConsoleLevel.Debug, defaultChannelName, message);
@@ -60,7 +60,7 @@ public class JBLogger
     {
         instance.AddCh(ConsoleLevel.Warn, defaultChannelName, message);
     }
-	
+
 	public static void Info(string message)
     {
         instance.AddCh(ConsoleLevel.Info, defaultChannelName, message);
@@ -75,12 +75,12 @@ public class JBLogger
     {
         instance.AddCh(ConsoleLevel.Fatal, defaultChannelName, message);
     }
-	
+
 	public static void Log(params object[] objects)
     {
         instance.AddCh(ConsoleLevel.Debug, defaultChannelName, objects);
     }
-	
+
 	public static void Debug(params object[] objects)
     {
         instance.AddCh(ConsoleLevel.Debug, defaultChannelName, objects);
@@ -90,7 +90,7 @@ public class JBLogger
     {
         instance.AddCh(ConsoleLevel.Warn, defaultChannelName, objects);
     }
-	
+
 	public static void Info(params object[] objects)
     {
         instance.AddCh(ConsoleLevel.Info, defaultChannelName, objects);
@@ -106,17 +106,17 @@ public class JBLogger
 		instance.AddCh(ConsoleLevel.Fatal, defaultChannelName, objects);
 	}
 
-	
+
 	public static void DebugCh(string channel, string message)
     {
         instance.AddCh(ConsoleLevel.Debug, channel, message);
     }
-	
+
 	public static void InfoCh(string channel, string message)
     {
         instance.AddCh(ConsoleLevel.Info, channel, message);
     }
-	
+
 	public static void WarnCh(string channel, string message)
     {
         instance.AddCh(ConsoleLevel.Warn, channel, message);
@@ -131,17 +131,17 @@ public class JBLogger
     {
         instance.AddCh(ConsoleLevel.Fatal, channel, message);
     }
-	
+
 	public static void DebugCh(string channel, params object[] objects)
     {
         instance.AddCh(ConsoleLevel.Debug, channel, objects);
     }
-	
+
 	public static void InfoCh(string channel, params object[] objects)
     {
         instance.AddCh(ConsoleLevel.Info, channel, objects);
     }
-		
+
 	public static void WarnCh(string channel, params object[] objects)
     {
         instance.AddCh(ConsoleLevel.Warn, channel, objects);
@@ -165,7 +165,7 @@ public class JBLogger
 		for(int i = 0; i <= end; i++)
 		{
 			obj = objects.GetValue(i);
-			
+
 			if(obj != null)
 			{
 				Type type = obj.GetType();
@@ -193,7 +193,7 @@ public class JBLogger
                         obj = "{<color=#ff8800ff>" + obj + "</color>}";
                     }
 				}
-                
+
 			}
 			strb.Append(obj);
 			if(i < end) strb.Append(" ");
@@ -259,45 +259,72 @@ public class JBLogger
 
 	public void Clear()
 	{
-		channels.Clear(); 
+		channels.Clear();
 		logs.Clear();
 		Changed();
 	}
-	
+
 	void Changed()
 	{
 		if(_stateHash < int.MaxValue) _stateHash++;
 		else _stateHash = int.MinValue;
 	}
+
+    public IEnumerable<IConsoleLog> GetLogs()
+    {
+        lock(instance)
+        {
+            foreach(var log in logs)
+            {
+                yield return log;
+            }
+        }
+    }
 }
 
-public enum ConsoleLevel
-{
-    Debug,
-    Info,
-    Warn,
-    Error,
-    Fatal
-}
-
-public class ConsoleLog
+public class ConsoleLog: IConsoleLog
 {
     public DateTime Time;
     public ConsoleLevel level;
     public string channel;
     public string message;
     public StackTrace stackTrace;
-	public int repeats;
+    public int repeats;
     public List<WeakReference> references;
 
-	public string GetUnityLimitedMessage()
-	{
-		var message = this.message;
-		const int MAX_LENGTH = System.UInt16.MaxValue / 4 - 1; //From unity source
-		if (message.Length > MAX_LENGTH)
-		{
-			message = message.Substring(0, MAX_LENGTH);
-		}
-		return message;
-	}
+    public string GetUnityLimitedMessage()
+    {
+        var message = this.message;
+        const int MAX_LENGTH = System.UInt16.MaxValue / 4 - 1; //From unity source
+        if (message.Length > MAX_LENGTH)
+        {
+            message = message.Substring(0, MAX_LENGTH);
+        }
+        return message;
+    }
+
+    public DateTime GetTime()
+    {
+        return Time;
+    }
+
+    public ConsoleLevel GetLevel()
+    {
+        return level;
+    }
+
+    public string GetChannel()
+    {
+        return channel;
+    }
+
+    public string GetMessage()
+    {
+        return message;
+    }
+
+    public StackTrace GetStackTrace()
+    {
+        return stackTrace;
+    }
 }
