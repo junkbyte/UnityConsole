@@ -29,7 +29,7 @@
     <properties>
         <shared-dlls.version>0.0.9</shared-dlls.version>
         <unity-common.version>0.0.9</unity-common.version>
-        <csharp-common.version>0.0.9</csharp-common.version>         
+        <csharp-common.version>0.0.10-SNAPSHOT</csharp-common.version>
     </properties>
 
     <dependencies>
@@ -39,14 +39,14 @@
 		<version>${csharp-common.version}</version>
 		<classifier>dll</classifier>
 		<type>zip</type>
-	    </dependency>            
+	    </dependency>
 	    <dependency>
 		<groupId>com.spaceape.shared</groupId>
 		<artifactId>shared-unity-common</artifactId>
 		<version>${unity-common.version}</version>
 		<classifier>dll</classifier>
 		<type>zip</type>
-	    </dependency>    
+	    </dependency>
         <dependency>
             <groupId>com.spaceape.shared.dlls</groupId>
             <artifactId>unity-engine</artifactId>
@@ -98,13 +98,13 @@
                         <configuration>
                             <includeGroupIds>
                                 com.spaceape.shared.dlls,
-                                com.spaceape.shared                                
+                                com.spaceape.shared
                             </includeGroupIds>
                             <includeArtifactIds>
                                 unity-engine,
                                 unity-editor,
                                 shared-csharp-common,
-                                shared-unity-common,                                
+                                shared-unity-common,
                             </includeArtifactIds>
                             <includes>**/*</includes>
                             <outputDirectory>${project.basedir}/dll</outputDirectory>
@@ -150,7 +150,7 @@
 					</configuration>
 				</execution>
 			</executions>
-		</plugin>            
+		</plugin>
 		<!--
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
