@@ -302,10 +302,17 @@ public class JBConsole : MonoBehaviour
 	{
 		var scale = 1f;
 		var dpi = Screen.dpi;
-#if !UNITY_EDITOR
-		if(dpi <= 0) dpi = 150;
-#endif
-		if (dpi > 0 && BaseDPI > 0) scale = dpi / BaseDPI;
+		if (Application.isEditor)
+		{
+			if (dpi <= 0)
+				dpi = 150;
+		}
+		else
+		{
+			if (dpi > 0 && BaseDPI > 0)
+				scale = dpi / BaseDPI;
+		}
+
 		return scale;
 	}
 

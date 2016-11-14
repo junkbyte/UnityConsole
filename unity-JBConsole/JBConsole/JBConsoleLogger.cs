@@ -18,9 +18,10 @@ public class JBConsoleLogger : Loggable
 	protected virtual void SetupConsole(JBConsole console)
 	{
 		console.Visible = false;
-		#if UNITY_EDITOR
-		JBCToggleOnKey.RegisterToConsole();
-		#endif
+
+		if (Application.isEditor)
+			JBCToggleOnKey.RegisterToConsole ();
+		
 		JBCVisibleOnPress.RegisterToConsole();
 	}
 
