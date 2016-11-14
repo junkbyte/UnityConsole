@@ -86,12 +86,8 @@ public class JBConsoleLogger : Loggable
 
     public static bool ShowConsoleOnError = false;
 
-    public static bool ShowToastOnError =
-#if DEBUG
-        true;
-#else
-		false;
-#endif
+	public static bool ShowToastOnError = false;
+
     protected virtual ConsoleLog Add(ConsoleLevel level, string channel, object[] objects, int errorCode = 0, System.Diagnostics.StackTrace stackTrace = null)
 	{
 		var log = JBLogger.instance.AddCh(level, channel, objects);
