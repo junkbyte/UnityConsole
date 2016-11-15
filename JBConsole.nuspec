@@ -5,7 +5,7 @@
     <id>SpaceApe.JBConsole</id>
 
     <!-- The package version number that is used when resolving dependencies -->
-    <version>1.0.1</version>
+    <version>1.0.3</version>
 
     <!-- Authors contain text that appears directly on the gallery -->
     <authors>SpaceApeGames</authors>
@@ -22,7 +22,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
     <!-- Any details about this particular release -->
-    <releaseNotes>Replacing UNITY_EDITOR with Application.isEditor</releaseNotes>
+    <releaseNotes>Building against new release of SpaceApe.Common...and .Net 3.5</releaseNotes>
 
     <!-- The description can be used in package manager UI. Note that the 
          nuget.org gallery uses information you add in the portal. -->
@@ -35,7 +35,7 @@
     <tags>unity dll c# common utils utilities console debug</tags>
 
     <dependencies>
-      <dependency id="SpaceApe.Common" version="1.0.3" />
+      <dependency id="SpaceApe.Common" version="1.0.4" />
     </dependencies>
   </metadata>
 

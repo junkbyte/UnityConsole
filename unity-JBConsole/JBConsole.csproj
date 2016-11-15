@@ -39,8 +39,11 @@
     <Reference Include="logger">
       <HintPath>..\packages\SpaceApe.Logger.1.0.0\lib\net35\logger.dll</HintPath>
     </Reference>
+    <Reference Include="SpaceApe.CommonEditor">
+      <HintPath>..\packages\SpaceApe.Common.1.0.4\lib\net35\Editor\SpaceApe.CommonEditor.dll</HintPath>
+    </Reference>
     <Reference Include="SpaceApe.Common">
-      <HintPath>..\packages\SpaceApe.Common.1.0.3\lib\net35\SpaceApe.Common.dll</HintPath>
+      <HintPath>..\packages\SpaceApe.Common.1.0.4\lib\net35\SpaceApe.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
