@@ -11,7 +11,7 @@ public class JBLogger
     public const string defaultChannelName = " - ";
     public const ConsoleLevel defaultConsoleLevel = ConsoleLevel.Debug;
 
-	public int maxLogs { get { return UnityEngine.Application.isEditor == true ? 5000 : 500; } }
+	public int maxLogs { get { return JBConsole.isEditor == true ? 5000 : 500; } }
 
     public bool RecordStackTrace = true;
 

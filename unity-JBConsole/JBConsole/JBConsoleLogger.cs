@@ -19,7 +19,7 @@ public class JBConsoleLogger : Loggable
 	{
 		console.Visible = false;
 
-		if (Application.isEditor)
+		if (JBConsole.isEditor)
 			JBCToggleOnKey.RegisterToConsole ();
 		
 		JBCVisibleOnPress.RegisterToConsole();

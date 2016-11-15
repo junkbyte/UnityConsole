@@ -5,7 +5,7 @@
     <id>SpaceApe.JBConsole</id>
 
     <!-- The package version number that is used when resolving dependencies -->
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 
     <!-- Authors contain text that appears directly on the gallery -->
     <authors>SpaceApeGames</authors>
@@ -22,7 +22,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
     <!-- Any details about this particular release -->
-    <releaseNotes>Building against new release of SpaceApe.Common...and .Net 3.5</releaseNotes>
+    <releaseNotes>Caching Application.isEditor at JBConsole startup as it is accessed away from the main thread</releaseNotes>
 
     <!-- The description can be used in package manager UI. Note that the 
          nuget.org gallery uses information you add in the portal. -->

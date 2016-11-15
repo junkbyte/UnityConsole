@@ -15,13 +15,13 @@ public class JBCKeyBinding : MonoBehaviour
 
 	void Enable()
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			enabled = false;
 	}
 	
 	void Update ()
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		if(CanTriggerHandle != null && !CanTriggerHandle()) return;
@@ -66,7 +66,7 @@ public class JBCKeyBinding : MonoBehaviour
 	bool wasConsoleVisibleBeforeToggle;
 	public void ToggleShowBindings()
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		if(!ShowingMap || !JBConsole.instance.Visible)
@@ -83,7 +83,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public void ShowBindings(bool alias = false)
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		ShowingMap = true;
@@ -94,7 +94,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public void HideBindings()
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		if(ShowingMap)
@@ -187,7 +187,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void BindDown(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 
 		var instance = Instance;
@@ -203,7 +203,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void BindUp(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		var instance = Instance;
@@ -219,7 +219,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void BindHold(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		var instance = Instance;
@@ -235,7 +235,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void UnbindDown(Action callback)
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		var instance = Instance;
@@ -247,7 +247,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void UnbindUp(Action callback)
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		var instance = Instance;
@@ -259,7 +259,7 @@ public class JBCKeyBinding : MonoBehaviour
 	
 	public static void UnbindHold(Action callback)
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		var instance = Instance;
@@ -271,7 +271,7 @@ public class JBCKeyBinding : MonoBehaviour
 	
 	public static void Unbind(Action callback)
 	{
-		if (!Application.isEditor)
+		if (!JBConsole.isEditor)
 			return;
 		
 		var instance = Instance;
@@ -288,7 +288,7 @@ public class JBCKeyBinding : MonoBehaviour
 	{
 		get
 		{
-			if (!Application.isEditor)
+			if (!JBConsole.isEditor)
 				return null;
 			
 			if(!_instance && JBConsole.Exists)	
@@ -318,7 +318,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 		public Binding(BindType type, KeyCode[] keysCombo)
 		{
-			if (!Application.isEditor)
+			if (!JBConsole.isEditor)
 				return;
 			
 			this.type = type;
@@ -328,7 +328,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 		public void Set(Action callback, string desc, bool alias)
 		{
-			if (!Application.isEditor)
+			if (!JBConsole.isEditor)
 				return;
 			
 			this.callback = callback;
@@ -338,7 +338,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 		public bool IsKeysPressed()
 		{
-			if (!Application.isEditor)
+			if (!JBConsole.isEditor)
 				return false;
 			
 			for(var i = keysCombo.Length - 1; i >= 0; i--)
@@ -353,7 +353,7 @@ public class JBCKeyBinding : MonoBehaviour
 
 		public void Call()
 		{
-			if (!Application.isEditor)
+			if (!JBConsole.isEditor)
 				return;
 			
 			if(callback != null)
@@ -367,7 +367,7 @@ public class JBCKeyBinding : MonoBehaviour
 		{
 			get
 			{
-				if (!Application.isEditor)
+				if (!JBConsole.isEditor)
 					return "";
 				
 				if(comboString == null)
