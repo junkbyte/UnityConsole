@@ -22,12 +22,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\net35\Editor</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -37,10 +37,10 @@
       <HintPath>..\packages\NSubstitute.1.10.0.0\lib\net35\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
-      <HintPath>..\packages\Unity.UnityEditor.5.4.0\lib\UnityEditor.dll</HintPath>
+      <HintPath>..\packages\Unity.UnityEditor.5.4.0\lib\net35\UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\packages\Unity.UnityEngine.5.4.0\lib\UnityEngine.dll</HintPath>
+      <HintPath>..\packages\Unity.UnityEngine.5.4.0\lib\net35\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
     <id>SpaceApe.JBConsole</id>
 
     <!-- The package version number that is used when resolving dependencies -->
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 
     <!-- Authors contain text that appears directly on the gallery -->
     <authors>SpaceApeGames</authors>
@@ -35,12 +35,15 @@
     <tags>unity dll c# common utils utilities console debug</tags>
 
     <dependencies>
-      <dependency id="SpaceApe.Common" version="1.0.4" />
+      <dependency id="SpaceApe.Common" version="1.0.5" />
+      <dependency id="SpaceApe.Logger" version="1.0.2" />
     </dependencies>
   </metadata>
 
   <files>
     <file src="unity-JBConsole/bin/Release/net35/SpaceApe.JBConsole.dll" target="lib/net35" />
+    <file src="unity-JBConsole/bin/Release/net35/SpaceApe.JBConsole.dll.mdb" target="lib/net35" />
     <file src="unity-JBConsole-editor/bin/Release/net35/**/SpaceApe.JBConsole.Editor.dll" target="lib/net35" />
+    <file src="unity-JBConsole-editor/bin/Release/net35/**/SpaceApe.JBConsole.Editor.dll.mdb" target="lib/net35" />
   </files>
 </package>
