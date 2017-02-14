@@ -31,8 +31,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\packages\Unity.UnityEngine.5.4.0\lib\net35\UnityEngine.dll</HintPath>
     </Reference>

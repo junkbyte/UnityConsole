@@ -6,6 +6,10 @@ public class JBConsoleLogger : Loggable
 {
 	public Signal<bool> VisibilityChanged = new Signal<bool>();
 
+	public static bool ShowConsoleOnError = false;
+
+	public static bool ShowToastOnError = false;
+
 	public virtual void Init()
 	{
 		if(!JBConsole.instance)
@@ -83,10 +87,6 @@ public class JBConsoleLogger : Loggable
 	{
 		Add(ConsoleLevel.Error, channel, objects, errorCode);
 	}
-
-    public static bool ShowConsoleOnError = false;
-
-	public static bool ShowToastOnError = false;
 
     protected virtual ConsoleLog Add(ConsoleLevel level, string channel, object[] objects, int errorCode = 0, System.Diagnostics.StackTrace stackTrace = null)
 	{
