@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,8 +7,8 @@
     <ProjectGuid>{20E56FAF-4731-4265-92D9-4098379FA75B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>unity_JBConsole</RootNamespace>
-    <AssemblyName>unity-JBConsole</AssemblyName>
+    <RootNamespace>JBConsole</RootNamespace>
+    <AssemblyName>SpaceApe.JBConsole</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -16,34 +16,32 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug\net35</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Release\net35</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NSubstitute">
-      <HintPath>..\dll\NSubstitute.dll</HintPath>
-    </Reference>
-    <Reference Include="shared-csharp-common">
-      <HintPath>..\dll\shared-csharp-common.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>..\dll\UnityEngine.dll</HintPath>
+      <HintPath>..\packages\Unity.UnityEngine.5.4.0\lib\net35\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="SpaceApe.CommonEditor">
+      <HintPath>..\packages\SpaceApe.Common.1.0.5\lib\net35\Editor\SpaceApe.CommonEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="SpaceApe.Common">
+      <HintPath>..\packages\SpaceApe.Common.1.0.5\lib\net35\SpaceApe.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="SpaceApe.Logger">
+      <HintPath>..\packages\SpaceApe.Logger.1.0.2\lib\net35\SpaceApe.Logger.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +60,15 @@
     <Compile Include="JBConsole\JBLogger.cs" />
     <Compile Include="JBConsole\JBPasswordEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="..\JBConsole.nuspec">
+      <Link>JBConsole.nuspec</Link>
+    </None>
+    <None Include="..\README.md">
+      <Link>README.md</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

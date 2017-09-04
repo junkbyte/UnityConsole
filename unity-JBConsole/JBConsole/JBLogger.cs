@@ -11,11 +11,8 @@ public class JBLogger
     public const string defaultChannelName = " - ";
     public const ConsoleLevel defaultConsoleLevel = ConsoleLevel.Debug;
 
-#if UNITY_EDITOR
-    public int maxLogs = 5000;
-#else
-    public int maxLogs = 500;
-#endif
+	public int maxLogs { get { return JBConsole.isEditor == true ? 5000 : 500; } }
+
     public bool RecordStackTrace = true;
 
     List<string> channels;
@@ -219,7 +216,7 @@ public class JBLogger
         return log;
     }
 
-    public void AddCh(ConsoleLevel level, string channel, string message)
+    public ConsoleLog AddCh(ConsoleLevel level, string channel, string message)
     {
         var log = new ConsoleLog();
         log.message = message;
@@ -227,6 +224,8 @@ public class JBLogger
         log.channel = channel;
         log.Time = DateTime.UtcNow;
         Add(log);
+
+		return log;
     }
 
     public void Add(ConsoleLog log)
