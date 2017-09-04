@@ -11,7 +11,18 @@ public class JBLogger
     public const string defaultChannelName = " - ";
     public const ConsoleLevel defaultConsoleLevel = ConsoleLevel.Debug;
 
-	public int maxLogs { get { return JBConsole.isEditor == true ? 5000 : 500; } }
+    int _customMaxLogs;
+	public int maxLogs
+    {
+        get
+        {
+            if (_customMaxLogs > 0)
+            {
+                return _customMaxLogs;
+            }
+            return JBConsole.isEditor == true ? 5000 : 500;
+        }
+    }
 
     public bool RecordStackTrace = true;
 
@@ -42,6 +53,14 @@ public class JBLogger
 	{
         channels = new List<string>() { allChannelsName, defaultChannelName };
 	}
+
+    /// <summary>
+    /// Set custom max logs count. If parameter is 0 or less, it will fall back to default.
+    /// </summary>
+    public static void SetMaxLogCount(int maxCount)
+    {
+        instance._customMaxLogs = maxCount;
+    }
 
 	public static void Log(string message)
     {
