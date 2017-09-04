@@ -1,8 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
+using System.Linq;
 
 public class JBCKeyBinding : MonoBehaviour
 {
@@ -27,13 +26,11 @@ public class JBCKeyBinding : MonoBehaviour
 		
 		if(CanTriggerHandle != null && !CanTriggerHandle()) return;
 
-        var inputFocused = EventSystem.current && EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() != null;
-
 		Binding binding;
 		for(var i = bindings.Count - 1; i >= 0; i--)
 		{
 			binding = bindings[i];
-            var nowPressed = !inputFocused && binding.IsKeysPressed();
+			var nowPressed = binding.IsKeysPressed();
 			if(binding.WasPressed)
 			{
 				if(!nowPressed)
