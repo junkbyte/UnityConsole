@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -14,9 +13,18 @@ public class JBCKeyBinding : MonoBehaviour
 	public KeyBindCanTriggerDelegate CanTriggerHandle;
 	public bool ShowingMap {get; private set;}
 	bool showingMapAlias;
+
+	void Enable()
+	{
+		if (!JBConsole.isEditor)
+			enabled = false;
+	}
 	
 	void Update ()
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		if(CanTriggerHandle != null && !CanTriggerHandle()) return;
 
         var inputFocused = EventSystem.current && EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() != null;
@@ -61,6 +69,9 @@ public class JBCKeyBinding : MonoBehaviour
 	bool wasConsoleVisibleBeforeToggle;
 	public void ToggleShowBindings()
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		if(!ShowingMap || !JBConsole.instance.Visible)
 		{
 			wasConsoleVisibleBeforeToggle = JBConsole.instance.Visible;
@@ -75,6 +86,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public void ShowBindings(bool alias = false)
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		ShowingMap = true;
 		showingMapAlias = alias;
 		JBConsole.instance.Visible = true;
@@ -83,12 +97,16 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public void HideBindings()
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		if(ShowingMap)
 		{
 			ShowingMap = false;
 			JBConsole.instance.Defocus();
 		}
 	}
+
 	Vector2 scrollPosition;
 	void DrawBindings(float width, float height, float scale = 1)
 	{
@@ -172,6 +190,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void BindDown(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
+		if (!JBConsole.isEditor)
+			return;
+
 		var instance = Instance;
 		if(instance)
 		{
@@ -185,6 +206,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void BindUp(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		var instance = Instance;
 		if(instance)
 		{
@@ -198,6 +222,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void BindHold(KeyCode[] keysCombo, Action callback, string description = null, params KeyCode[][] alias)
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		var instance = Instance;
 		if(instance)
 		{
@@ -211,6 +238,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void UnbindDown(Action callback)
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		var instance = Instance;
 		if(instance)
 		{
@@ -220,6 +250,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 	public static void UnbindUp(Action callback)
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		var instance = Instance;
 		if(instance)
 		{
@@ -229,6 +262,9 @@ public class JBCKeyBinding : MonoBehaviour
 	
 	public static void UnbindHold(Action callback)
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		var instance = Instance;
 		if(instance)
 		{
@@ -238,6 +274,9 @@ public class JBCKeyBinding : MonoBehaviour
 	
 	public static void Unbind(Action callback)
 	{
+		if (!JBConsole.isEditor)
+			return;
+		
 		var instance = Instance;
 		if(instance)
 		{
@@ -252,6 +291,9 @@ public class JBCKeyBinding : MonoBehaviour
 	{
 		get
 		{
+			if (!JBConsole.isEditor)
+				return null;
+			
 			if(!_instance && JBConsole.Exists)	
 			{
 				_instance = JBConsole.instance.RegisterPlugin<JBCKeyBinding>();
@@ -279,6 +321,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 		public Binding(BindType type, KeyCode[] keysCombo)
 		{
+			if (!JBConsole.isEditor)
+				return;
+			
 			this.type = type;
 			this.keysCombo = keysCombo;
 			if(keysCombo.Length == 0) throw new System.Exception("Key combo can not be blank.");
@@ -286,6 +331,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 		public void Set(Action callback, string desc, bool alias)
 		{
+			if (!JBConsole.isEditor)
+				return;
+			
 			this.callback = callback;
 			this.desc = desc;
 			this.Alias = alias;
@@ -293,6 +341,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 		public bool IsKeysPressed()
 		{
+			if (!JBConsole.isEditor)
+				return false;
+			
 			for(var i = keysCombo.Length - 1; i >= 0; i--)
 			{
 				if(!Input.GetKey(keysCombo[i]))
@@ -305,6 +356,9 @@ public class JBCKeyBinding : MonoBehaviour
 
 		public void Call()
 		{
+			if (!JBConsole.isEditor)
+				return;
+			
 			if(callback != null)
 			{
 				callback();
@@ -316,6 +370,9 @@ public class JBCKeyBinding : MonoBehaviour
 		{
 			get
 			{
+				if (!JBConsole.isEditor)
+					return "";
+				
 				if(comboString == null)
 				{
 					comboString = "";
@@ -338,4 +395,3 @@ public class JBCKeyBinding : MonoBehaviour
 		}
 	}
 }
-#endif

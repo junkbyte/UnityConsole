@@ -8,19 +8,22 @@ public delegate void JBCLogSelectedHandler(ConsoleLog log);
 
 public class JBConsole : MonoBehaviour
 {
+	public static bool isEditor = false;
+
     public static ConsoleLog ToastLog;
     public static float ToastExpiry;
 
     private const int baseFontSize = 14;
     delegate void SubMenuHandler(int index);
 
-    public static JBConsole Start(bool visible = true)
+	public static JBConsole Start(bool visible = true)
 	{
 		if(instance == null)
 		{
 			var go = new GameObject("JBConsole");
 			instance = go.AddComponent<JBConsole>();
 			instance.Visible = visible;
+			JBConsole.isEditor = Application.isEditor;
 		}
 		return instance;
 	}
@@ -302,10 +305,17 @@ public class JBConsole : MonoBehaviour
 	{
 		var scale = 1f;
 		var dpi = Screen.dpi;
-#if !UNITY_EDITOR
-		if(dpi <= 0) dpi = 150;
-#endif
-		if (dpi > 0 && BaseDPI > 0) scale = dpi / BaseDPI;
+		if (JBConsole.isEditor)
+		{
+			if (dpi <= 0)
+				dpi = 150;
+		}
+		else
+		{
+			if (dpi > 0 && BaseDPI > 0)
+				scale = dpi / BaseDPI;
+		}
+
 		return scale;
 	}
 

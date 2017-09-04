@@ -13,3 +13,5 @@
 **/*.idea
 **/*.iml
 **/target
+**/*.sw[ponm]
+*.nupkg

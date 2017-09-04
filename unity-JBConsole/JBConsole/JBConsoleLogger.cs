@@ -6,6 +6,10 @@ public class JBConsoleLogger : Loggable
 {
 	public Signal<bool> VisibilityChanged = new Signal<bool>();
 
+	public static bool ShowConsoleOnError = false;
+
+	public static bool ShowToastOnError = false;
+
 	public virtual void Init()
 	{
 		if(!JBConsole.instance)
@@ -18,9 +22,10 @@ public class JBConsoleLogger : Loggable
 	protected virtual void SetupConsole(JBConsole console)
 	{
 		console.Visible = false;
-		#if UNITY_EDITOR
-		JBCToggleOnKey.RegisterToConsole();
-		#endif
+
+		if (JBConsole.isEditor)
+			JBCToggleOnKey.RegisterToConsole ();
+		
 		JBCVisibleOnPress.RegisterToConsole();
 	}
 
@@ -83,14 +88,6 @@ public class JBConsoleLogger : Loggable
 		Add(ConsoleLevel.Error, channel, objects, errorCode);
 	}
 
-    public static bool ShowConsoleOnError = false;
-
-    public static bool ShowToastOnError =
-#if DEBUG
-        true;
-#else
-		false;
-#endif
     protected virtual ConsoleLog Add(ConsoleLevel level, string channel, object[] objects, int errorCode = 0, System.Diagnostics.StackTrace stackTrace = null)
 	{
 		var log = JBLogger.instance.AddCh(level, channel, objects);
