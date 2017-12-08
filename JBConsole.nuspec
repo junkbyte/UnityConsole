@@ -5,7 +5,7 @@
     <id>SpaceApe.JBConsole</id>
 
     <!-- The package version number that is used when resolving dependencies -->
-    <version>1.0.7</version>
+    <version>1.0.8</version>
 
     <!-- Authors contain text that appears directly on the gallery -->
     <authors>SpaceApeGames</authors>
@@ -41,6 +41,7 @@
   </metadata>
 
   <files>
+    <file src="RobotoMono-Regular.ttf" target="font" />
     <file src="unity-JBConsole/bin/Release/net35/SpaceApe.JBConsole.dll" target="lib/net35" />
     <file src="unity-JBConsole/bin/Release/net35/SpaceApe.JBConsole.dll.mdb" target="lib/net35" />
     <file src="unity-JBConsole-editor/bin/Release/net35/**/SpaceApe.JBConsole.Editor.dll" target="lib/net35" />

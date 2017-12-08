@@ -50,6 +50,7 @@
     <Compile Include="JBConsole\JBCKeyBinding.cs" />
     <Compile Include="JBConsole\JBCLogPassThrough.cs" />
     <Compile Include="JBConsole\JBConsole.cs" />
+    <Compile Include="JBConsole\JBConsoleFontReference.cs" />
     <Compile Include="JBConsole\JBConsoleLogger.cs" />
     <Compile Include="JBConsole\JBConsoleUtils.cs" />
     <Compile Include="JBConsole\JBCStyle.cs" />

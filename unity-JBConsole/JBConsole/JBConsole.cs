@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using com.spaceape.jbconsole;
 
 public delegate void JBConsoleMenuHandler();
 public delegate void JBCDrawBodyHandler(float width, float height, float scale = 1);
@@ -49,10 +50,19 @@ public class JBConsole : MonoBehaviour
 
 	
 	private JBLogger logger;
+	public Font Font { get; private set; }
     private JBCStyle _style;
-    public JBCStyle style { get { if (_style == null) _style = new JBCStyle(); return _style; }
-    }
+    public JBCStyle style { get { if (_style == null) _style = new JBCStyle(Font ?? JBConsoleFontReference.GetDefaultFont()); return _style; } }
 
+	public void SetFont(Font font)
+	{
+		Font = font;
+		if (_style != null) // style can only be created inside OnGUI :facepalm:
+		{
+			_style.SetFont(font);
+		}
+	}
+	
     public int menuItemWidth = 135;
     public int BaseDPI = 100;
     private bool _visible = true;
@@ -99,7 +109,7 @@ public class JBConsole : MonoBehaviour
 	bool scrolled;
 
 	int stateHash;
-	
+
 	void Awake ()
 	{
 		if(instance == null) instance = this;
