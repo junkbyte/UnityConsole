@@ -119,11 +119,23 @@ public class JBConsole : MonoBehaviour
 		DontDestroyOnLoad(gameObject);
 
         logger = JBLogger.instance;
+		if (logger != null)
+		{
+			logger.ChannelAdded += HandleChannelAdded;
+		}
 		
 		Menu = new JBCustomMenu();
         levels = Enum.GetNames(typeof(ConsoleLevel));
         topMenu = currentTopMenu = Enum.GetNames(typeof(ConsoleMenu));
 		Menu.Add("Clear", Clear);
+	}
+
+	private void OnDestroy()
+	{
+		if (logger != null)
+		{
+			logger.ChannelAdded -= HandleChannelAdded;
+		}
 	}
 
 	void Clear()
@@ -232,6 +244,14 @@ public class JBConsole : MonoBehaviour
         UpdateChannelsSubMenu();
         clearCache();
     }
+
+	private void HandleChannelAdded()
+	{
+		if (currentTopMenuIndex == (int) ConsoleMenu.Channels)
+		{
+			UpdateChannelsSubMenu();
+		}
+	}
 
     void OnLevelClicked(int index)
     {
