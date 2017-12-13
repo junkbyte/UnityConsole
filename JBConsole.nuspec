@@ -5,7 +5,7 @@
     <id>SpaceApe.JBConsole</id>
 
     <!-- The package version number that is used when resolving dependencies -->
-    <version>1.0.8</version>
+    <version>1.0.9</version>
 
     <!-- Authors contain text that appears directly on the gallery -->
     <authors>SpaceApeGames</authors>
@@ -22,14 +22,16 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
     <!-- Any details about this particular release -->
-    <releaseNotes>Allow max logs override.</releaseNotes>
+    <releaseNotes>Channels stay in sync with log output. And * and - channels are preserved after clear.
+JBConsole can now have a non-default arial font. Including a free monospace one as an option that will get prompted once.
+Allow max logs override.</releaseNotes>
 
     <!-- The description can be used in package manager UI. Note that the 
          nuget.org gallery uses information you add in the portal. -->
     <description>Unity Junk Byte debug console</description>
 
     <!-- Copyright information -->
-    <copyright>Copyright ©2016 Space Ape Games</copyright>
+    <copyright>Copyright ©2017 Space Ape Games</copyright>
 
     <!-- Tags appear in the gallery and can be used for tag searches -->
     <tags>unity dll c# common utils utilities console debug</tags>

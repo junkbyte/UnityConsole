@@ -26,7 +26,9 @@ public class JBLogger
 
     public bool RecordStackTrace = true;
 
-    List<string> channels;
+    readonly List<string> channels = new List<string>(32);
+
+    public event Action ChannelAdded;
 
     List<ConsoleLog> logs = new List<ConsoleLog>();
 	int _stateHash = int.MinValue;
@@ -50,9 +52,16 @@ public class JBLogger
 	}
 
     protected JBLogger ()
-	{
-        channels = new List<string>() { allChannelsName, defaultChannelName };
-	}
+    {
+        ResetChannels();
+    }
+
+    private void ResetChannels()
+    {
+        channels.Clear();
+        channels.Add(allChannelsName);
+        channels.Add(defaultChannelName);
+    }
 
     /// <summary>
     /// Set custom max logs count. If parameter is 0 or less, it will fall back to default.
@@ -266,6 +275,10 @@ public class JBLogger
             if (!channels.Contains(log.channel))
             {
                 channels.Add(log.channel);
+                if (ChannelAdded != null)
+                {
+                    ChannelAdded();
+                }
             }
             if (count >= maxLogs)
             {
@@ -277,7 +290,7 @@ public class JBLogger
 
 	public void Clear()
 	{
-		channels.Clear();
+		ResetChannels();
 		logs.Clear();
 		Changed();
 	}
