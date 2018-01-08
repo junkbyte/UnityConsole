@@ -34,13 +34,13 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="NSubstitute">
-      <HintPath>..\packages\NSubstitute.1.10.0.0\lib\net35\NSubstitute.dll</HintPath>
+      <HintPath>..\packages\NSubstitute\lib\net35\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
-      <HintPath>..\packages\Unity.UnityEditor.5.4.0\lib\net35\UnityEditor.dll</HintPath>
+      <HintPath>..\packages-versioned\Unity.UnityEditor.5.4.0\lib\net35\UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\packages\Unity.UnityEngine.5.4.0\lib\net35\UnityEngine.dll</HintPath>
+      <HintPath>..\packages-versioned\Unity.UnityEngine.5.4.0\lib\net35\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

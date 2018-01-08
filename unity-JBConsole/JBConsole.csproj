@@ -32,16 +32,16 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
-      <HintPath>..\packages\Unity.UnityEngine.5.4.0\lib\net35\UnityEngine.dll</HintPath>
+      <HintPath>..\packages-versioned\Unity.UnityEngine.5.4.0\lib\net35\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="SpaceApe.CommonEditor">
-      <HintPath>..\packages\SpaceApe.Common.1.0.5\lib\net35\Editor\SpaceApe.CommonEditor.dll</HintPath>
+      <HintPath>..\packages\SpaceApe.Common\lib\net35\Editor\SpaceApe.CommonEditor.dll</HintPath>
     </Reference>
     <Reference Include="SpaceApe.Common">
-      <HintPath>..\packages\SpaceApe.Common.1.0.5\lib\net35\SpaceApe.Common.dll</HintPath>
+      <HintPath>..\packages\SpaceApe.Common\lib\net35\SpaceApe.Common.dll</HintPath>
     </Reference>
     <Reference Include="SpaceApe.Logger">
-      <HintPath>..\packages\SpaceApe.Logger.1.0.2\lib\net35\SpaceApe.Logger.dll</HintPath>
+      <HintPath>..\packages\SpaceApe.Logger\lib\net35\SpaceApe.Logger.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

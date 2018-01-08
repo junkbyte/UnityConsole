@@ -3,7 +3,7 @@ from subprocess import call
 import os
 import sys
 
-os.chdir(os.path.join(sys.path[0],".."))
+os.chdir(sys.path[0])
 
 
 # because file needs to be packages.config, put it in own directory
