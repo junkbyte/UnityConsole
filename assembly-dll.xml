@@ -1,0 +1,24 @@
+<assembly>
+    <id>dll</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/unity-JBConsole/bin/${build.configuration}</directory>
+            <includes>
+            	<include>unity-JBConsole.dll</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/unity-JBConsole-Editor/bin/${build.configuration}</directory>
+            <includes>
+            	<include>unity-JBConsole-editor.dll</include>
+            </includes>
+            <outputDirectory>/Editor/</outputDirectory>
+        </fileSet>
+        
+    </fileSets>
+</assembly>

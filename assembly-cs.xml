@@ -1,0 +1,32 @@
+<assembly>
+    <id>cs</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/unity-JBConsole/</directory>
+            <includes>
+            	<include>**\*.cs</include>
+            	<include>**\*.mets</include>
+            </includes>
+            <excludes>
+            	<exclude>Properties\*</exclude>            	
+	    </excludes>
+            <outputDirectory>unity-jbconsole/</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/unity-JBConsole-editor/</directory>
+            <includes>
+            	<include>**\*.cs</include>
+            	<include>**\*.mets</include>
+            </includes>
+            <excludes>
+            	<exclude>Properties\*</exclude>            	
+	    </excludes>
+            <outputDirectory>unity-jbconsole/</outputDirectory>
+        </fileSet>
+        
+    </fileSets>
+</assembly>
